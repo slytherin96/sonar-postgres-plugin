@@ -3,12 +3,14 @@ package com.premiumminds.sonar.plpgsql;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 
 public class PlPgSqlRulesDefinition implements RulesDefinition {
 
     public static final String REPOSITORY = "plpgsql-repository";
 
+    public static final RuleKey RULE_PARSE_ERROR = RuleKey.of(REPOSITORY, "parse-error");
     public static final RuleKey RULE_IF_NOT_EXISTS = RuleKey.of(REPOSITORY, "if-not-exists");
     public static final RuleKey RULE_IF_EXISTS = RuleKey.of(REPOSITORY, "if-exists");
     public static final RuleKey RULE_CONCURRENTLY = RuleKey.of(REPOSITORY, "concurrently");
@@ -18,6 +20,11 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
 
         NewRepository repository = context.createRepository(REPOSITORY, PlPgSqlLanguage.KEY);
 
+        repository.createRule(RULE_PARSE_ERROR.rule())
+                .setName("parse error rule")
+                .setType(RuleType.BUG)
+                .setSeverity(Severity.BLOCKER)
+                .setHtmlDescription("Generates an issue when PL/pgSQL is no valid and fails to parse");
         repository.createRule(RULE_IF_NOT_EXISTS.rule())
                 .setName("if-not-exists rule")
                 .setHtmlDescription("Generates an issue when adding a table or a column does not have IF NOT EXISTS");

@@ -23,6 +23,8 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -52,6 +54,17 @@ public class PlPgSqlSensor implements Sensor {
                 final PgQueryParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse(contents);
                 if (result.error != null){
                     LOGGER.error(result.error.message.getString(0));
+
+                    final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
+                    NewIssue newIssue = context.newIssue()
+                            .forRule(PlPgSqlRulesDefinition.RULE_PARSE_ERROR);
+                    NewIssueLocation primaryLocation = newIssue.newLocation()
+                            .on(file)
+                            .at(file.selectLine(textPointer.line()))
+                            .message("Add IF NOT EXISTS");
+                    newIssue.at(primaryLocation);
+                    newIssue.save();
+
                     return;
                 }
 
