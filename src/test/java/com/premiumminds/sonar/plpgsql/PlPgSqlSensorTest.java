@@ -82,11 +82,11 @@ class PlPgSqlSensorTest {
         assertEquals("Add IF NOT EXISTS to CREATE TABLE foo", issueMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals("adding-foreign-key-constraint", issueMap.get(":file2.sql").ruleKey().rule());
-        assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
+        assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
                 issueMap.get(":file2.sql").primaryLocation().message());
 
         assertEquals("adding-foreign-key-constraint", issueMap.get(":file3.sql").ruleKey().rule());
-        assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
+        assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
                 issueMap.get(":file3.sql").primaryLocation().message());
 
         assertEquals("ban-char-field", issueMap.get(":file4.sql").ruleKey().rule());
@@ -158,15 +158,15 @@ class PlPgSqlSensorTest {
         assertEquals("Add IF EXISTS to DROP COLUMN bar", issueMap.get(":file2.sql").primaryLocation().message());
 
         assertEquals("adding-field-with-default", issueMap.get(":file3.sql").ruleKey().rule());
-        assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
+        assertEquals("Adding a field with a VOLATILE default can cause table rewrites, which will take an ACCESS EXCLUSIVE lock on the table, blocking reads / writes while the statement is running.",
                 issueMap.get(":file3.sql").primaryLocation().message());
 
         assertEquals("adding-foreign-key-constraint", issueMap.get(":file4.sql").ruleKey().rule());
-        assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
+        assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
                 issueMap.get(":file4.sql").primaryLocation().message());
 
         assertEquals("adding-foreign-key-constraint", issueMap.get(":file6.sql").ruleKey().rule());
-        assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
+        assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
                 issueMap.get(":file6.sql").primaryLocation().message());
 
         assertEquals("setting-not-nullable-field", issueMap.get(":file7.sql").ruleKey().rule());

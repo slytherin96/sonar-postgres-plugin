@@ -21,7 +21,7 @@ public class ForeignKeyConstraint implements Constraint {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten");
+                    .message("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.");
             newIssue.at(primaryLocation);
             newIssue.save();
         }

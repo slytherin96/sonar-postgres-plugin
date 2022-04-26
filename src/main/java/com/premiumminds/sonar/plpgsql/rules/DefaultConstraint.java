@@ -20,7 +20,7 @@ public class DefaultConstraint implements Constraint {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten");
+                    .message("Adding a field with a VOLATILE default can cause table rewrites, which will take an ACCESS EXCLUSIVE lock on the table, blocking reads / writes while the statement is running.");
             newIssue.at(primaryLocation);
             newIssue.save();
         }
