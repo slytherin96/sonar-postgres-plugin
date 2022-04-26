@@ -141,6 +141,10 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file14.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT positive_balance CHECK (balance >= 0) NOT VALID;" +
                                                                 "ALTER TABLE IF EXISTS foo VALIDATE CONSTRAINT positive_balance;");
         createFile(contextTester, "file15.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT field_name_constraint UNIQUE (field_name);");
+        createFile(contextTester, "file15-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_name_temp_idx ON foo (name);" +
+                                                                "ALTER TABLE IF EXISTS foo " +
+                                                                "   DROP CONSTRAINT IF EXISTS name_constraint," +
+                                                                "   ADD CONSTRAINT name_constraint UNIQUE USING INDEX foo_name_temp_idx;");
         createFile(contextTester, "file16.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name varchar(100);");
         createFile(contextTester, "file17.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name varchar;");
         createFile(contextTester, "file18.sql", "ALTER TABLE IF EXISTS foo RENAME COLUMN bar TO baz;");
