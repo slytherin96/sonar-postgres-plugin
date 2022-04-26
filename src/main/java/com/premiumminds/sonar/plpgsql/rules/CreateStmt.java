@@ -14,6 +14,9 @@ public class CreateStmt implements Stmt {
 
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
+        final JsonObject relation = jsonObject.getJsonObject("relation");
+        final String relname = relation.getString("relname");
+
         if(!jsonObject.getBoolean("if_not_exists", false)){
 
             NewIssue newIssue = context.newIssue()
@@ -21,7 +24,7 @@ public class CreateStmt implements Stmt {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
+                    .message("Add IF NOT EXISTS to CREATE TABLE " + relname);
             newIssue.at(primaryLocation);
             newIssue.save();
         }

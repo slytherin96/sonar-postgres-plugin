@@ -38,12 +38,15 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
                 .setType(RuleType.BUG)
                 .setSeverity(Severity.BLOCKER)
                 .setHtmlDescription("Generates an issue when PL/pgSQL is no valid and fails to parse");
+
         repository.createRule(RULE_IF_NOT_EXISTS.rule())
                 .setName("if-not-exists rule")
                 .setHtmlDescription("Generates an issue when adding a table or a column does not have IF NOT EXISTS");
+
         repository.createRule(RULE_IF_EXISTS.rule())
                 .setName("if-exists rule")
                 .setHtmlDescription("Generates an issue when dropping a table or a column does not have IF EXISTS");
+
         repository.createRule(RULE_CONCURRENTLY.rule())
                 .setName("concurrently rule")
                 .setHtmlDescription("Generates an issue when index creation is not concurrently ");

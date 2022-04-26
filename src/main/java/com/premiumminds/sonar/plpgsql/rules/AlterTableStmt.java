@@ -19,6 +19,8 @@ public class AlterTableStmt implements Stmt {
 
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
+        final JsonObject relation = jsonObject.getJsonObject("relation");
+        final String relname = relation.getString("relname");
         final JsonArray cmds = jsonObject.getJsonArray("cmds");
         cmds.forEach(x -> {
             final JsonObject cmd = x.asJsonObject();
@@ -54,7 +56,7 @@ public class AlterTableStmt implements Stmt {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF EXISTS");
+                    .message("Add IF EXISTS to ALTER TABLE " + relname);
             newIssue.at(primaryLocation);
             newIssue.save();
         }
@@ -72,13 +74,15 @@ public class AlterTableStmt implements Stmt {
     }
 
     private void dropConstraint(SensorContext context, InputFile file, TextRange textRange, JsonObject alterTableCmd) {
+        final String name = alterTableCmd.getString("name");
+
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_IF_NOT_EXISTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
+                    .message("Add IF NOT EXISTS to DROP CONSTRAINT " + name);
             newIssue.at(primaryLocation);
             newIssue.save();
         }
@@ -127,20 +131,21 @@ public class AlterTableStmt implements Stmt {
     }
 
     private void addColumn(SensorContext context, InputFile file, TextRange textRange, JsonObject alterTableCmd) {
+        final JsonObject columnDef = alterTableCmd
+                .getJsonObject("def")
+                .getJsonObject("ColumnDef");
+        final String colname = columnDef.getString("colname");
+
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_IF_NOT_EXISTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
+                    .message("Add IF NOT EXISTS to ADD COLUMN " + colname);
             newIssue.at(primaryLocation);
             newIssue.save();
         }
-
-        final JsonObject columnDef = alterTableCmd
-                .getJsonObject("def")
-                .getJsonObject("ColumnDef");
 
         final JsonObject typeName = columnDef.getJsonObject("typeName");
         final JsonArray names = typeName.getJsonArray("names");
@@ -202,13 +207,15 @@ public class AlterTableStmt implements Stmt {
     }
 
     private void dropColumn(SensorContext context, InputFile file, TextRange textRange, JsonObject alterTableCmd) {
+        final String name = alterTableCmd.getString("name");
+
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF EXISTS");
+                    .message("Add IF EXISTS to DROP COLUMN " + name);
             newIssue.at(primaryLocation);
             newIssue.save();
         }

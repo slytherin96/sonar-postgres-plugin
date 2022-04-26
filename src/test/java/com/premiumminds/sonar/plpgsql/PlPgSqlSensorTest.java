@@ -79,7 +79,7 @@ class PlPgSqlSensorTest {
         assertEquals(5, issueMap.size());
 
         assertEquals("if-not-exists", issueMap.get(":file1.sql").ruleKey().rule());
-        assertEquals("Add IF NOT EXISTS", issueMap.get(":file1.sql").primaryLocation().message());
+        assertEquals("Add IF NOT EXISTS to CREATE TABLE foo", issueMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals("adding-foreign-key-constraint", issueMap.get(":file2.sql").ruleKey().rule());
         assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
@@ -147,10 +147,10 @@ class PlPgSqlSensorTest {
         assertEquals(16, issueMap.size());
 
         assertEquals("if-not-exists", issueMap.get(":file1.sql").ruleKey().rule());
-        assertEquals("Add IF NOT EXISTS", issueMap.get(":file1.sql").primaryLocation().message());
+        assertEquals("Add IF NOT EXISTS to ADD COLUMN bar", issueMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals("if-exists", issueMap.get(":file2.sql").ruleKey().rule());
-        assertEquals("Add IF EXISTS", issueMap.get(":file2.sql").primaryLocation().message());
+        assertEquals("Add IF EXISTS to DROP COLUMN bar", issueMap.get(":file2.sql").primaryLocation().message());
 
         assertEquals("adding-field-with-default", issueMap.get(":file3.sql").ruleKey().rule());
         assertEquals("Adding a column with a volatile DEFAULT or changing the type of an existing column will require the entire table and its indexes to be rewritten",
@@ -173,10 +173,10 @@ class PlPgSqlSensorTest {
                 issueMap.get(":file8.sql").primaryLocation().message());
 
         assertEquals("if-exists", issueMap.get(":file9.sql").ruleKey().rule());
-        assertEquals("Add IF EXISTS", issueMap.get(":file9.sql").primaryLocation().message());
+        assertEquals("Add IF EXISTS to ALTER TABLE foo", issueMap.get(":file9.sql").primaryLocation().message());
 
         assertEquals("if-not-exists", issueMap.get(":file10.sql").ruleKey().rule());
-        assertEquals("Add IF NOT EXISTS", issueMap.get(":file10.sql").primaryLocation().message());
+        assertEquals("Add IF NOT EXISTS to DROP CONSTRAINT bar_constraint", issueMap.get(":file10.sql").primaryLocation().message());
 
         assertEquals("ban-char-field", issueMap.get(":file11.sql").ruleKey().rule());
         assertEquals("Using character is likely a mistake and should almost always be replaced by text or varchar.",
