@@ -170,7 +170,7 @@ class PlPgSqlSensorTest {
                 issueMap.get(":file6.sql").primaryLocation().message());
 
         assertEquals("setting-not-nullable-field", issueMap.get(":file7.sql").ruleKey().rule());
-        assertEquals("Ordinarily this is checked during the ALTER TABLE by scanning the entire table;",
+        assertEquals("Setting a column as NOT NULL will require a scan of the entire table. However, if a valid CHECK constraint is found which proves no NULL can exist, then the table scan is skipped.",
                 issueMap.get(":file7.sql").primaryLocation().message());
 
         assertEquals("adding-serial-primary-key-field", issueMap.get(":file8.sql").ruleKey().rule());

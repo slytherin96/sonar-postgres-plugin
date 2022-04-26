@@ -103,7 +103,7 @@ public class AlterTableStmt implements Stmt {
         NewIssueLocation primaryLocation = newIssue.newLocation()
                 .on(file)
                 .at(textRange)
-                .message("Ordinarily this is checked during the ALTER TABLE by scanning the entire table;");
+                .message("Setting a column as NOT NULL will require a scan of the entire table. However, if a valid CHECK constraint is found which proves no NULL can exist, then the table scan is skipped.");
         newIssue.at(primaryLocation);
         newIssue.save();
     }
