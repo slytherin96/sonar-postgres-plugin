@@ -12,6 +12,8 @@ public class IndexStmt implements Stmt {
 
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
+        final String idxname = jsonObject.getString("idxname");
+
         if(!jsonObject.getBoolean("if_not_exists", false)){
 
             NewIssue newIssue = context.newIssue()
@@ -19,7 +21,7 @@ public class IndexStmt implements Stmt {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
+                    .message("Add IF NOT EXISTS to CREATE INDEX " + idxname);
             newIssue.at(primaryLocation);
             newIssue.save();
 
@@ -31,7 +33,7 @@ public class IndexStmt implements Stmt {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add CONCURRENTLY");
+                    .message("Add CONCURRENTLY to CREATE INDEX " + idxname);
             newIssue.at(primaryLocation);
             newIssue.save();
         }

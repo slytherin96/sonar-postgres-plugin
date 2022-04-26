@@ -101,17 +101,22 @@ class PlPgSqlSensorTest {
     @Test
     void createIndexStatement() {
 
-        createFile(contextTester, "file1.sql", "create index idx1 on foo (id);");
+        createFile(contextTester, "file1.sql", "create index if not exists idx1 on foo (id);");
+        createFile(contextTester, "file2.sql", "create index concurrently idx1 on foo (id);");
 
         PlPgSqlSensor sensor = new PlPgSqlSensor();
         sensor.execute(contextTester);
 
-        final List<Issue> issues = new ArrayList<>(contextTester.allIssues());
-        issues.sort(Comparator.comparing(x -> x.primaryLocation().inputComponent().key()));
+        Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
 
-        assertEquals(2, issues.size());
-        assertEquals("if-not-exists", issues.get(0).ruleKey().rule());
-        assertEquals("concurrently", issues.get(1).ruleKey().rule());
+        assertEquals(2, issueMap.size());
+
+        assertEquals("concurrently", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("Add CONCURRENTLY to CREATE INDEX idx1", issueMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals("if-not-exists", issueMap.get(":file2.sql").ruleKey().rule());
+        assertEquals("Add IF NOT EXISTS to CREATE INDEX idx1", issueMap.get(":file2.sql").primaryLocation().message());
+
     }
 
     @Test
