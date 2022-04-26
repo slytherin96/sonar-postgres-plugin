@@ -87,11 +87,11 @@ public class AlterTableStmt implements Stmt {
 
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_NOT_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS to DROP CONSTRAINT " + name);
+                    .message("Add IF EXISTS to DROP CONSTRAINT " + name);
             newIssue.at(primaryLocation);
             newIssue.save();
         }

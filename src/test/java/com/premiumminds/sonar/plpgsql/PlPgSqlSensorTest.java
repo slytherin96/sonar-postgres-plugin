@@ -180,8 +180,8 @@ class PlPgSqlSensorTest {
         assertEquals("if-exists", issueMap.get(":file9.sql").ruleKey().rule());
         assertEquals("Add IF EXISTS to ALTER TABLE foo", issueMap.get(":file9.sql").primaryLocation().message());
 
-        assertEquals("if-not-exists", issueMap.get(":file10.sql").ruleKey().rule());
-        assertEquals("Add IF NOT EXISTS to DROP CONSTRAINT bar_constraint", issueMap.get(":file10.sql").primaryLocation().message());
+        assertEquals("if-exists", issueMap.get(":file10.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to DROP CONSTRAINT bar_constraint", issueMap.get(":file10.sql").primaryLocation().message());
 
         assertEquals("ban-char-field", issueMap.get(":file11.sql").ruleKey().rule());
         assertEquals("Using character is likely a mistake and should almost always be replaced by text or varchar.",
