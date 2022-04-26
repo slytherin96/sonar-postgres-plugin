@@ -131,6 +131,8 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file6.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS bar_id int4 REFERENCES bar(id);");
         createFile(contextTester, "file7.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN id SET NOT NULL;");
         createFile(contextTester, "file8.sql", "ALTER TABLE IF EXISTS foo ADD PRIMARY KEY (id);");
+        createFile(contextTester, "file8-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_pk_idx ON foo (id); " +
+                                                                "ALTER TABLE IF EXISTS foo ADD CONSTRAINT foo_pk PRIMARY KEY USING INDEX foo_pk_idx;");
         createFile(contextTester, "file9.sql", "ALTER TABLE foo ADD COLUMN IF NOT EXISTS id int;");
         createFile(contextTester, "file10.sql", "ALTER TABLE IF EXISTS foo DROP CONSTRAINT bar_constraint;");
         createFile(contextTester, "file11.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name character;");
