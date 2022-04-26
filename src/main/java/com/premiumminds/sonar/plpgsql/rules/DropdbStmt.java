@@ -8,28 +8,17 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class DropStmt implements Stmt {
+public class DropdbStmt implements Stmt {
 
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
-        if(!jsonObject.getBoolean("missing_ok", false)){
+        if(jsonObject.getJsonString("dbname") != null){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_BAN_DROP_DATABASE);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
-            newIssue.at(primaryLocation);
-            newIssue.save();
-        }
-        final String removeType = jsonObject.getString("removeType");
-        if ("OBJECT_INDEX".equals(removeType) && !jsonObject.getBoolean("concurrent", false)){
-            NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_CONCURRENTLY);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(file)
-                    .at(textRange)
-                    .message("Add CONCURRENTLY");
+                    .message("Dropping a database may break existing clients.");
             newIssue.at(primaryLocation);
             newIssue.save();
         }

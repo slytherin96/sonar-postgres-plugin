@@ -39,6 +39,18 @@
             <version>8.9.8.54436</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sonarsource.sonarqube</groupId>
+            <artifactId>sonar-plugin-api-impl</artifactId>
+            <version>8.9.8.54436</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

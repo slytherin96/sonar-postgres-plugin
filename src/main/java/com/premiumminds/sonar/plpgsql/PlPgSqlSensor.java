@@ -10,7 +10,9 @@ import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryParseResult;
 import com.premiumminds.sonar.plpgsql.rules.AlterTableStmt;
 import com.premiumminds.sonar.plpgsql.rules.CreateStmt;
 import com.premiumminds.sonar.plpgsql.rules.DropStmt;
+import com.premiumminds.sonar.plpgsql.rules.DropdbStmt;
 import com.premiumminds.sonar.plpgsql.rules.IndexStmt;
+import com.premiumminds.sonar.plpgsql.rules.RenameStmt;
 import com.premiumminds.sonar.plpgsql.rules.Stmt;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -61,11 +63,11 @@ public class PlPgSqlSensor implements Sensor {
                     NewIssueLocation primaryLocation = newIssue.newLocation()
                             .on(file)
                             .at(file.selectLine(textPointer.line()))
-                            .message("Add IF NOT EXISTS");
+                            .message("Failure to parse statement");
                     newIssue.at(primaryLocation);
                     newIssue.save();
 
-                    return;
+                    continue;
                 }
 
                 try (StringReader reader = new StringReader(result.parse_tree.getString(0))) {
@@ -115,8 +117,14 @@ public class PlPgSqlSensor implements Sensor {
                 case "DropStmt":
                     stmt = new DropStmt();
                     break;
+                case "DropdbStmt":
+                    stmt = new DropdbStmt();
+                    break;
                 case "AlterTableStmt":
                     stmt = new AlterTableStmt();
+                    break;
+                case "RenameStmt":
+                    stmt = new RenameStmt();
                     break;
                 default:
                     LOGGER.warn(key + " not defined");
