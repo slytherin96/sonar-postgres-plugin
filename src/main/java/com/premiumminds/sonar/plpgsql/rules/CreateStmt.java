@@ -39,21 +39,10 @@ public class CreateStmt implements Stmt {
                         constraints.forEach(c -> {
                             final JsonObject constraintJson = c.asJsonObject()
                                     .getJsonObject("Constraint");
-                            final String contype = constraintJson.getString("contype");
+                            final EnumConstraint contype = EnumConstraint.valueOf(constraintJson.getString("contype"));
                             Constraint constraint;
                             switch (contype){
-//                                case "CONSTR_DEFAULT":
-//                                    constraint = new DefaultConstraint();
-//                                    break;
-//                                case "CONSTR_UNIQUE":
-//                                    break;
-//                                case "CONSTR_NOTNULL":
-//                                    break;
-//                                case "CONSTR_IDENTITY":
-//                                    break;
-//                                case "CONSTR_PRIMARY":
-//                                    break;
-                                case "CONSTR_FOREIGN":
+                                case CONSTR_FOREIGN:
                                     constraint = new ForeignKeyConstraint();
                                     break;
                                 default:
@@ -90,21 +79,10 @@ public class CreateStmt implements Stmt {
                 }
                 final JsonObject constraintJson = tableElt.asJsonObject().getJsonObject("Constraint");
                 if (constraintJson != null){
-                    final String contype = constraintJson.getString("contype");
+                    final EnumConstraint contype = EnumConstraint.valueOf(constraintJson.getString("contype"));
                     Constraint constraint;
                     switch (contype){
-//                        case "CONSTR_DEFAULT":
-//                            constraint = new DefaultConstraint();
-//                            break;
-//                        case "CONSTR_UNIQUE":
-//                            break;
-//                        case "CONSTR_NOTNULL":
-//                            break;
-//                        case "CONSTR_IDENTITY":
-//                            break;
-//                        case "CONSTR_PRIMARY":
-//                            break;
-                        case "CONSTR_FOREIGN":
+                        case CONSTR_FOREIGN:
                             constraint = new ForeignKeyConstraint();
                             break;
                         default:

@@ -17,6 +17,17 @@ import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_SETTING
 public class AlterTableStmt implements Stmt {
     private static final Logger LOGGER = Loggers.get(AlterTableStmt.class);
 
+    private enum SubType {
+        AT_SetNotNull,
+        AT_AddConstraint,
+        AT_ValidateConstraint,
+        AT_AlterColumnType,
+        AT_DropConstraint,
+        AT_DropColumn,
+        AT_AddColumn,
+        ;
+    }
+
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
         final JsonObject relation = jsonObject.getJsonObject("relation");
@@ -25,27 +36,25 @@ public class AlterTableStmt implements Stmt {
         cmds.forEach(x -> {
             final JsonObject cmd = x.asJsonObject();
             final JsonObject alterTableCmd = cmd.getJsonObject("AlterTableCmd");
-            final String subtype = alterTableCmd.getString("subtype");
 
+            final SubType subtype = SubType.valueOf(alterTableCmd.getString("subtype"));
             switch (subtype){
-                case "AT_SetNotNull":
+                case AT_SetNotNull:
                     setNotNull(context, file, textRange, alterTableCmd);
                     break;
-                case "AT_AddConstraint":
+                case AT_AddConstraint:
                     addConstraint(context, file, textRange, alterTableCmd);
                     break;
-//                case "AT_ValidateConstraint":
-//                    break;
-                case "AT_AlterColumnType":
+                case AT_AlterColumnType:
                     alterColumnType(context, file, textRange, alterTableCmd);
                     break;
-                case "AT_DropConstraint":
+                case AT_DropConstraint:
                     dropConstraint(context, file, textRange, alterTableCmd);
                     break;
-                case "AT_DropColumn":
+                case AT_DropColumn:
                     dropColumn(context, file, textRange, alterTableCmd);
                     break;
-                case "AT_AddColumn":
+                case AT_AddColumn:
                     addColumn(context, file, textRange, alterTableCmd);
                     break;
             }
@@ -101,26 +110,19 @@ public class AlterTableStmt implements Stmt {
 
     private void addConstraint(SensorContext context, InputFile file, TextRange textRange, JsonObject alterTableCmd) {
         final JsonObject constraintJson = alterTableCmd.getJsonObject("def").getJsonObject("Constraint");
-        final String contype = constraintJson.getString("contype");
+        final EnumConstraint contype = EnumConstraint.valueOf(constraintJson.getString("contype"));
         Constraint constraint;
         switch (contype){
-//            case "CONSTR_DEFAULT":
-//                constraint = new DefaultConstraint();
-//                break;
-            case "CONSTR_UNIQUE":
+            case CONSTR_UNIQUE:
                 constraint = new UniqueConstraint();
                 break;
-//            case "CONSTR_NOTNULL":
-//                break;
-//            case "CONSTR_IDENTITY":
-//                break;
-            case "CONSTR_PRIMARY":
+            case CONSTR_PRIMARY:
                 constraint = new PrimaryKeyConstraint();
                 break;
-            case "CONSTR_FOREIGN":
+            case CONSTR_FOREIGN:
                 constraint = new ForeignKeyConstraint();
                 break;
-            case "CONSTR_CHECK":
+            case CONSTR_CHECK:
                 constraint = new CheckContraint();
                 break;
             default:
@@ -178,26 +180,15 @@ public class AlterTableStmt implements Stmt {
             constraints.forEach(c -> {
                 final JsonObject constraintJson = c.asJsonObject()
                         .getJsonObject("Constraint");
-                final String contype = constraintJson.getString("contype");
+                final EnumConstraint contype = EnumConstraint.valueOf(constraintJson.getString("contype"));
                 Constraint constraint;
                 switch (contype){
-                    case "CONSTR_DEFAULT":
+                    case CONSTR_DEFAULT:
                         constraint = new DefaultConstraint();
                         break;
-//                    case "CONSTR_UNIQUE":
-//                        break;
-//                    case "CONSTR_NOTNULL":
-//                        break;
-//                    case "CONSTR_IDENTITY":
-//                        break;
-//                    case "CONSTR_PRIMARY":
-//                        break;
-                    case "CONSTR_FOREIGN":
+                    case CONSTR_FOREIGN:
                         constraint = new ForeignKeyConstraint();
                         break;
-//                    case "CONSTR_CHECK":
-//                        constraint = new CheckContraint();
-//                        break;
                     default:
                         return;
                 }
