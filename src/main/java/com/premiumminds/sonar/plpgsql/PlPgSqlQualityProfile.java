@@ -25,7 +25,7 @@ public class PlPgSqlQualityProfile implements BuiltInQualityProfilesDefinition {
     public void define(Context context) {
         NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("PL/pgSQL Rules", PlPgSqlLanguage.KEY);
         profile.setDefault(true);
-        
+
         activateRule(profile, RULE_PARSE_ERROR);
         activateRule(profile, RULE_IF_NOT_EXISTS);
         activateRule(profile, RULE_IF_EXISTS);

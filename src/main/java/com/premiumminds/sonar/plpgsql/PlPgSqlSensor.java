@@ -34,8 +34,6 @@ public class PlPgSqlSensor implements Sensor {
 
     private static final Logger LOGGER = Loggers.get(PlPgSqlSensor.class);
 
-    private static final int LINE_1 = 1;
-
     @Override
     public void describe(SensorDescriptor descriptor) {
         descriptor.name("Add issues on line 1 of all Java files");
@@ -70,23 +68,27 @@ public class PlPgSqlSensor implements Sensor {
                     continue;
                 }
 
-                try (StringReader reader = new StringReader(result.parse_tree.getString(0))) {
-                    try (JsonReader jsonReader = Json.createReader(reader)) {
-                        final JsonObject jsonObject = jsonReader.readObject();
-
-                        final JsonArray stmts = jsonObject.getJsonArray("stmts");
-                        stmts.forEach(jv -> {
-                            final JsonObject jo = jv.asJsonObject();
-                            final JsonObject stmt = jo.getJsonObject("stmt");
-
-                            final TextRange textRange = parseTextRange(file, contents, eolOffsets, jo);
-
-                            parseStatement(context, file, textRange, stmt);
-                        });
-                    }
-                }
+                parseTree(context, file, contents, eolOffsets, result.parse_tree.getString(0));
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void parseTree(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets, String result) {
+        try (StringReader reader = new StringReader(result)) {
+            try (JsonReader jsonReader = Json.createReader(reader)) {
+                final JsonObject jsonObject = jsonReader.readObject();
+
+                final JsonArray stmts = jsonObject.getJsonArray("stmts");
+                stmts.forEach(jv -> {
+                    final JsonObject jo = jv.asJsonObject();
+                    final JsonObject stmt = jo.getJsonObject("stmt");
+
+                    final TextRange textRange = parseTextRange(file, contents, eolOffsets, jo);
+
+                    parseStatement(context, file, textRange, stmt);
+                });
             }
         }
     }
