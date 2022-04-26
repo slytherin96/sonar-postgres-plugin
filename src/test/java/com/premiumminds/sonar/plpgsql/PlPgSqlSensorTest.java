@@ -56,7 +56,7 @@ class PlPgSqlSensorTest {
 
         assertEquals(3, issueMap.size());
 
-        assertEquals("if-exists", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
         assertEquals("ban-drop-database", issueMap.get(":file2.sql").ruleKey().rule());
         assertEquals("concurrently", issueMap.get(":file3.sql").ruleKey().rule());
     }
@@ -78,7 +78,7 @@ class PlPgSqlSensorTest {
 
         assertEquals(5, issueMap.size());
 
-        assertEquals("if-not-exists", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
         assertEquals("Add IF NOT EXISTS to CREATE TABLE foo", issueMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals("adding-foreign-key-constraint", issueMap.get(":file2.sql").ruleKey().rule());
@@ -114,7 +114,7 @@ class PlPgSqlSensorTest {
         assertEquals("concurrently", issueMap.get(":file1.sql").ruleKey().rule());
         assertEquals("Add CONCURRENTLY to CREATE INDEX idx1", issueMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals("if-not-exists", issueMap.get(":file2.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file2.sql").ruleKey().rule());
         assertEquals("Add IF NOT EXISTS to CREATE INDEX idx1", issueMap.get(":file2.sql").primaryLocation().message());
 
     }
@@ -157,10 +157,10 @@ class PlPgSqlSensorTest {
 
         assertEquals(16, issueMap.size());
 
-        assertEquals("if-not-exists", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
         assertEquals("Add IF NOT EXISTS to ADD COLUMN bar", issueMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals("if-exists", issueMap.get(":file2.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file2.sql").ruleKey().rule());
         assertEquals("Add IF EXISTS to DROP COLUMN bar", issueMap.get(":file2.sql").primaryLocation().message());
 
         assertEquals("adding-field-with-default", issueMap.get(":file3.sql").ruleKey().rule());
@@ -183,10 +183,10 @@ class PlPgSqlSensorTest {
         assertEquals("If PRIMARY KEY is specified, and the index's columns are not already marked NOT NULL, then this command will attempt to do ALTER COLUMN SET NOT NULL against each such column. That requires a full table scan to verify the column(s) contain no nulls. In all other cases, this is a fast operation.",
                 issueMap.get(":file8.sql").primaryLocation().message());
 
-        assertEquals("if-exists", issueMap.get(":file9.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file9.sql").ruleKey().rule());
         assertEquals("Add IF EXISTS to ALTER TABLE foo", issueMap.get(":file9.sql").primaryLocation().message());
 
-        assertEquals("if-exists", issueMap.get(":file10.sql").ruleKey().rule());
+        assertEquals("prefer-robust-stmts", issueMap.get(":file10.sql").ruleKey().rule());
         assertEquals("Add IF EXISTS to DROP CONSTRAINT bar_constraint", issueMap.get(":file10.sql").primaryLocation().message());
 
         assertEquals("ban-char-field", issueMap.get(":file11.sql").ruleKey().rule());

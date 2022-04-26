@@ -19,7 +19,7 @@ public class CreateStmt implements Stmt {
         if(!jsonObject.getBoolean("if_not_exists", false)){
 
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_NOT_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)

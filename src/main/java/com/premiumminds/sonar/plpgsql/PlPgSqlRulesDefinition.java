@@ -12,8 +12,7 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
     public static final String REPOSITORY = "plpgsql-repository";
 
     public static final RuleKey RULE_PARSE_ERROR = RuleKey.of(REPOSITORY, "parse-error");
-    public static final RuleKey RULE_IF_NOT_EXISTS = RuleKey.of(REPOSITORY, "if-not-exists");
-    public static final RuleKey RULE_IF_EXISTS = RuleKey.of(REPOSITORY, "if-exists");
+    public static final RuleKey RULE_PREFER_ROBUST_STMTS = RuleKey.of(REPOSITORY, "prefer-robust-stmts");
     public static final RuleKey RULE_CONCURRENTLY = RuleKey.of(REPOSITORY, "concurrently");
     public static final RuleKey RULE_ADD_FIELD_WITH_DEFAULT = RuleKey.of(REPOSITORY, "adding-field-with-default");
     public static final RuleKey RULE_ADD_FOREIGN_KEY = RuleKey.of(REPOSITORY, "adding-foreign-key-constraint");
@@ -39,13 +38,9 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
                 .setSeverity(Severity.BLOCKER)
                 .setHtmlDescription("Generates an issue when PL/pgSQL is no valid and fails to parse");
 
-        repository.createRule(RULE_IF_NOT_EXISTS.rule())
-                .setName("if-not-exists rule")
-                .setHtmlDescription("Generates an issue when adding a table or a column does not have IF NOT EXISTS");
-
-        repository.createRule(RULE_IF_EXISTS.rule())
-                .setName("if-exists rule")
-                .setHtmlDescription("Generates an issue when dropping a table or a column does not have IF EXISTS");
+        repository.createRule(RULE_PREFER_ROBUST_STMTS.rule())
+                .setName("prefer-robust-stmts rule")
+                .setHtmlDescription("Generates an issue when adding a table, index, column or constraint does not have a guard clause like IF NOT EXISTS");
 
         repository.createRule(RULE_CONCURRENTLY.rule())
                 .setName("concurrently rule")

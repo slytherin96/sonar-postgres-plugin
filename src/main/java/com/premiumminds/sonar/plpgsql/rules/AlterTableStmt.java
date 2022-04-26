@@ -60,7 +60,7 @@ public class AlterTableStmt implements Stmt {
         });
         if(!jsonObject.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -86,7 +86,7 @@ public class AlterTableStmt implements Stmt {
 
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -139,7 +139,7 @@ public class AlterTableStmt implements Stmt {
 
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_NOT_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -178,7 +178,7 @@ public class AlterTableStmt implements Stmt {
 
         if(!alterTableCmd.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)

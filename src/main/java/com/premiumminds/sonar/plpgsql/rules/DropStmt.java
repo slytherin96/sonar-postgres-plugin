@@ -14,7 +14,7 @@ public class DropStmt implements Stmt {
     public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
         if(!jsonObject.getBoolean("missing_ok", false)){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_IF_EXISTS);
+                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
