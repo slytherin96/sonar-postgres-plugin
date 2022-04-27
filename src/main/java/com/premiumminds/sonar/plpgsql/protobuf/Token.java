@@ -4680,7 +4680,7 @@ public enum Token
     return com.premiumminds.sonar.plpgsql.protobuf.PgQuery.getDescriptor().getEnumTypes().get(56);
   }
 
-  private static final Token[] VALUES = values();
+  private static final Token[] INTERNAL_VALUES = values();
 
   public static Token valueOf(
       com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -4691,7 +4691,7 @@ public enum Token
     if (desc.getIndex() == -1) {
       return UNRECOGNIZED;
     }
-    return VALUES[desc.getIndex()];
+    return INTERNAL_VALUES[desc.getIndex()];
   }
 
   private final int value;
