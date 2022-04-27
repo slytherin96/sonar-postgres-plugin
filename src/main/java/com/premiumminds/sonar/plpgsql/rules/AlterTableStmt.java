@@ -24,7 +24,7 @@ public class AlterTableStmt implements Stmt {
         AT_DropConstraint,
         AT_DropColumn,
         AT_AddColumn,
-        ;
+        AT_ColumnDefault,
     }
 
     @Override

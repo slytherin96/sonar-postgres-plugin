@@ -61,7 +61,8 @@ public class PlPgSqlSensor implements Sensor {
                 parseContents(context, file, contents, eolOffsets);
 
                 scanContents(context, file, contents, eolOffsets);
-            } catch (IOException e) {
+            } catch (Exception e) {
+                LOGGER.error("problem parsing file: " + file.filename(), e);
                 throw new RuntimeException(e);
             }
         }
@@ -70,7 +71,7 @@ public class PlPgSqlSensor implements Sensor {
     private void scanContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) throws InvalidProtocolBufferException {
         final PgQueryScanResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_scan(contents);
         if (result.error != null){
-            LOGGER.error(result.error.message.getString(0));
+            LOGGER.error("problem with file " + file.filename() + ": " + result.error.message.getString(0));
 
             final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
             NewIssue newIssue = context.newIssue()
@@ -105,7 +106,7 @@ public class PlPgSqlSensor implements Sensor {
     private void parseContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) {
         final PgQueryParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse(contents);
         if (result.error != null){
-            LOGGER.error(result.error.message.getString(0));
+            LOGGER.error("problem with file " + file.filename() + ": " + result.error.message.getString(0));
 
             final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
             NewIssue newIssue = context.newIssue()

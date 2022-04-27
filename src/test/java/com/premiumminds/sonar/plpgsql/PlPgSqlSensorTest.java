@@ -178,6 +178,8 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file17.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name varchar;");
         createFile(contextTester, "file18.sql", "ALTER TABLE IF EXISTS foo RENAME COLUMN bar TO baz;");
         createFile(contextTester, "file19.sql", "ALTER TABLE IF EXISTS foo RENAME TO bar;");
+        createFile(contextTester, "file20.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT -1;");
+        createFile(contextTester, "file21.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT random();");
 
         PlPgSqlSensor sensor = new PlPgSqlSensor();
         sensor.execute(contextTester);
