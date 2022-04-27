@@ -1,0 +1,7 @@
+== problem
+
+Dropping a database may break existing clients.
+
+== solution
+
+You probably don't want to drop your database.

@@ -1,8 +1,6 @@
 package com.premiumminds.sonar.plpgsql;
 
-import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -36,63 +34,63 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
                 .setName("parse error rule")
                 .setType(RuleType.BUG)
                 .setSeverity(Severity.BLOCKER)
-                .setHtmlDescription("Generates an issue when PL/pgSQL is no valid and fails to parse");
+                .setMarkdownDescription(getClass().getResource("parse-error.md"));
 
         repository.createRule(RULE_PREFER_ROBUST_STMTS.rule())
                 .setName("prefer-robust-stmts rule")
-                .setHtmlDescription("Generates an issue when adding a table, index, column or constraint does not have a guard clause like IF NOT EXISTS");
+                .setMarkdownDescription(getClass().getResource("prefer-robust-stmts.md"));
 
         repository.createRule(RULE_CONCURRENTLY.rule())
                 .setName("concurrently rule")
-                .setHtmlDescription("Generates an issue when index creation is not concurrently ");
+                .setMarkdownDescription(getClass().getResource("concurrently.md"));
 
         repository.createRule(RULE_ADD_FIELD_WITH_DEFAULT.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("adding-field-with-default rule")
+                .setMarkdownDescription(getClass().getResource("adding-field-with-default.md"));
 
         repository.createRule(RULE_ADD_FOREIGN_KEY.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("adding-foreign-key-constraint rule")
+                .setMarkdownDescription(getClass().getResource("adding-foreign-key-constraint.md"));
 
         repository.createRule(RULE_SETTING_NOT_NULLABLE_FIELD.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("setting-not-nullable-field rule")
+                .setMarkdownDescription(getClass().getResource("setting-not-nullable-field.md"));
 
         repository.createRule(RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("adding-serial-primary-key-field rule")
+                .setMarkdownDescription(getClass().getResource("adding-serial-primary-key-field.md"));
 
         repository.createRule(RULE_BAN_CHAR_FIELD.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("ban-char-field rule")
+                .setMarkdownDescription(getClass().getResource("ban-char-field.md"));
 
         repository.createRule(RULE_BAN_DROP_DATABASE.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("ban-drop-database rule")
+                .setMarkdownDescription(getClass().getResource("ban-drop-database.md"));
 
         repository.createRule(RULE_CHANGING_COLUMN_TYPE.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("changing-column-type rule")
+                .setMarkdownDescription(getClass().getResource("changing-column-type.md"));
 
         repository.createRule(RULE_CONSTRAINT_MISSING_NOT_VALID.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("constraint-missing-not-valid rule")
+                .setMarkdownDescription(getClass().getResource("constraint-missing-not-valid.md"));
 
         repository.createRule(RULE_DISALLOWED_UNIQUE_CONSTRAINT.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("disallowed-unique-constraint rule")
+                .setMarkdownDescription(getClass().getResource("disallowed-unique-constraint.md"));
 
         repository.createRule(RULE_PREFER_TEXT_FIELD.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("prefer-text-field rule")
+                .setMarkdownDescription(getClass().getResource("prefer-text-field.md"));
 
         repository.createRule(RULE_RENAMING_COLUMN.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("renaming-column rule")
+                .setMarkdownDescription(getClass().getResource("renaming-column.md"));
 
         repository.createRule(RULE_RENAMING_TABLE.rule())
-                .setName("TODO")
-                .setHtmlDescription("TODO");
+                .setName("renaming-table rule")
+                .setMarkdownDescription(getClass().getResource("renaming-table.md"));
 
         repository.done();
     }

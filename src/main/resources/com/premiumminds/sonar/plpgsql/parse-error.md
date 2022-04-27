@@ -1,0 +1,1 @@
+Generates an issue when PL/pgSQL is not valid and fails to parse
