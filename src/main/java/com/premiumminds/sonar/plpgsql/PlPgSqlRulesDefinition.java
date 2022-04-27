@@ -24,6 +24,7 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_PREFER_TEXT_FIELD = RuleKey.of(REPOSITORY, "prefer-text-field");
     public static final RuleKey RULE_RENAMING_COLUMN = RuleKey.of(REPOSITORY, "renaming-column");
     public static final RuleKey RULE_RENAMING_TABLE = RuleKey.of(REPOSITORY, "renaming-table");
+    public static final RuleKey RULE_IDENTIFIER_MAX_LENGTH = RuleKey.of(REPOSITORY, "identifier-max-length");
 
     @Override
     public void define(Context context) {
@@ -91,6 +92,10 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
         repository.createRule(RULE_RENAMING_TABLE.rule())
                 .setName("renaming-table rule")
                 .setMarkdownDescription(getClass().getResource("renaming-table.md"));
+
+        repository.createRule(RULE_IDENTIFIER_MAX_LENGTH.rule())
+                .setName("identifier-max-length rule")
+                .setMarkdownDescription(getClass().getResource("identifier-max-length.md"));
 
         repository.done();
     }

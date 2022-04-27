@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +39,36 @@ class PlPgSqlSensorTest {
         assertEquals("parse-error", issues.get(0).ruleKey().rule());
         assertEquals("Failure to parse statement", issues.get(0).primaryLocation().message());
         assertEquals(":file1.sql", issues.get(0).primaryLocation().inputComponent().key());
+    }
+
+    @Test
+    void maxIdentifier() {
+
+        createFile(contextTester, "file1.sql",
+                "create table if not exists a23456789_123456789_123456789_123456789_123456789_123456789_123456789_ (id int);");
+        createFile(contextTester, "file2.sql",
+                "create table if not exists foo (a23456789_123456789_123456789_123456789_123456789_123456789_123456789_ int);");
+        createFile(contextTester, "file3.sql",
+                "create index concurrently if not exists a23456789_123456789_123456789_123456789_123456789_123456789_123456789_ on foo (id);");
+
+        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        sensor.execute(contextTester);
+
+        Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
+
+        assertEquals(3, issueMap.size());
+
+        assertEquals("identifier-max-length", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("Identifier 'a23456789_123456789_123456789_123456789_123456789_123456789_123456789_' length (70) is bigger than default maximum for Postgresql 63",
+                issueMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals("identifier-max-length", issueMap.get(":file2.sql").ruleKey().rule());
+        assertEquals("Identifier 'a23456789_123456789_123456789_123456789_123456789_123456789_123456789_' length (70) is bigger than default maximum for Postgresql 63",
+                issueMap.get(":file2.sql").primaryLocation().message());
+
+        assertEquals("identifier-max-length", issueMap.get(":file3.sql").ruleKey().rule());
+        assertEquals("Identifier 'a23456789_123456789_123456789_123456789_123456789_123456789_123456789_' length (70) is bigger than default maximum for Postgresql 63",
+                issueMap.get(":file3.sql").primaryLocation().message());
     }
 
     @Test

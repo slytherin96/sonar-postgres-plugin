@@ -12,6 +12,7 @@ import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_CHANGIN
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_CONCURRENTLY;
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
+import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_PARSE_ERROR;
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_PREFER_TEXT_FIELD;
@@ -40,6 +41,7 @@ public class PlPgSqlQualityProfile implements BuiltInQualityProfilesDefinition {
         activateRule(profile, RULE_PREFER_TEXT_FIELD);
         activateRule(profile, RULE_RENAMING_COLUMN);
         activateRule(profile, RULE_RENAMING_TABLE);
+        activateRule(profile, RULE_IDENTIFIER_MAX_LENGTH);
 
         profile.done();
     }

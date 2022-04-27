@@ -5,8 +5,13 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.premiumminds.sonar.plpgsql.libpg_query.PGQueryLibrary;
 import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryParseResult;
+import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryScanResult;
+import com.premiumminds.sonar.plpgsql.protobuf.ScanResult;
+import com.premiumminds.sonar.plpgsql.protobuf.ScanToken;
+import com.premiumminds.sonar.plpgsql.protobuf.Token;
 import com.premiumminds.sonar.plpgsql.rules.AlterTableStmt;
 import com.premiumminds.sonar.plpgsql.rules.CreateStmt;
 import com.premiumminds.sonar.plpgsql.rules.DropStmt;
@@ -34,6 +39,8 @@ public class PlPgSqlSensor implements Sensor {
 
     private static final Logger LOGGER = Loggers.get(PlPgSqlSensor.class);
 
+    private static final int POSTGRESQL_MAX_IDENTIFIER_LENGTH = 63;
+
     @Override
     public void describe(SensorDescriptor descriptor) {
         descriptor.name("Add issues on line 1 of all Java files");
@@ -51,32 +58,73 @@ public class PlPgSqlSensor implements Sensor {
                 final String contents = file.contents();
                 final List<Integer> eolOffsets = parseEolOffsets(contents);
 
-                final PgQueryParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse(contents);
-                if (result.error != null){
-                    LOGGER.error(result.error.message.getString(0));
+                parseContents(context, file, contents, eolOffsets);
 
-                    final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
-                    NewIssue newIssue = context.newIssue()
-                            .forRule(PlPgSqlRulesDefinition.RULE_PARSE_ERROR);
-                    NewIssueLocation primaryLocation = newIssue.newLocation()
-                            .on(file)
-                            .at(file.selectLine(textPointer.line()))
-                            .message("Failure to parse statement");
-                    newIssue.at(primaryLocation);
-                    newIssue.save();
-
-                    PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
-
-                    continue;
-                }
-
-                parseTree(context, file, contents, eolOffsets, result.parse_tree.getString(0));
-
-                PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
+                scanContents(context, file, contents, eolOffsets);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void scanContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) throws InvalidProtocolBufferException {
+        final PgQueryScanResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_scan(contents);
+        if (result.error != null){
+            LOGGER.error(result.error.message.getString(0));
+
+            final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
+            NewIssue newIssue = context.newIssue()
+                    .forRule(PlPgSqlRulesDefinition.RULE_PARSE_ERROR);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(file)
+                    .at(file.selectLine(textPointer.line()))
+                    .message("Failure to scan statement");
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+        final ScanResult scanResult = ScanResult.parseFrom(result.pbuf.data.getByteArray(0, result.pbuf.len));
+        scanResult.getTokensList()
+                .stream()
+                .filter(st -> st.getToken().equals(Token.IDENT))
+                .filter(st -> contents.substring(st.getStart(), st.getEnd()).length() > POSTGRESQL_MAX_IDENTIFIER_LENGTH)
+                .forEach(st -> {
+                    final String identifier = contents.substring(st.getStart(), st.getEnd());
+                    NewIssue newIssue = context.newIssue()
+                            .forRule(PlPgSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH);
+                    NewIssueLocation primaryLocation = newIssue.newLocation()
+                            .on(file)
+                            .at(parseTextRange(file, eolOffsets, st))
+                            .message("Identifier '" + identifier + "' length (" + identifier.length() + ") is bigger than default maximum for Postgresql " + POSTGRESQL_MAX_IDENTIFIER_LENGTH);
+                    newIssue.at(primaryLocation);
+                    newIssue.save();
+                });
+
+        PGQueryLibrary.INSTANCE.pg_query_free_scan_result(result);
+    }
+
+    private void parseContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) {
+        final PgQueryParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse(contents);
+        if (result.error != null){
+            LOGGER.error(result.error.message.getString(0));
+
+            final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
+            NewIssue newIssue = context.newIssue()
+                    .forRule(PlPgSqlRulesDefinition.RULE_PARSE_ERROR);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(file)
+                    .at(file.selectLine(textPointer.line()))
+                    .message("Failure to parse statement");
+            newIssue.at(primaryLocation);
+            newIssue.save();
+
+            PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
+
+            return;
+        }
+
+        parseTree(context, file, contents, eolOffsets, result.parse_tree.getString(0));
+
+        PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
     }
 
     private void parseTree(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets, String result) {
@@ -95,6 +143,12 @@ public class PlPgSqlSensor implements Sensor {
                 });
             }
         }
+    }
+
+    private TextRange parseTextRange(InputFile file, List<Integer> eolOffsets, ScanToken st) {
+        final TextPointer textPointerStart = convertAbsoluteOffsetToTextPointer(file, eolOffsets, st.getStart());
+        final TextPointer textPointerEnd = convertAbsoluteOffsetToTextPointer(file, eolOffsets, st.getEnd());
+        return file.newRange(textPointerStart, textPointerEnd);
     }
 
     private TextRange parseTextRange(InputFile file, String contents, List<Integer> eolOffsets, JsonObject jo) {
