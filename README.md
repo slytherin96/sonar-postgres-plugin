@@ -2,6 +2,10 @@
 
 Sonar plugin to analyze PL/pgSQL scripts
 
+## Screenshot
+
+![issue example](screenshot.png).
+
 ## Build
 
 ### libpg_query
