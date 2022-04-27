@@ -158,7 +158,7 @@ public class PlPgSqlSensor implements Sensor {
         if (jo.containsKey("stmt_len")) {
             stmtLen = jo.getInt("stmt_len");
         } else {
-            stmtLen = contents.length() - stmtLocation;
+            stmtLen = contents.length() - stmtLocation - 1;
         }
         final TextPointer textPointerStart = convertAbsoluteOffsetToTextPointer(file, eolOffsets, stmtLocation);
         final TextPointer textPointerEnd = convertAbsoluteOffsetToTextPointer(file, eolOffsets, stmtLocation + stmtLen);

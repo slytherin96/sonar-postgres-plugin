@@ -99,6 +99,7 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file4.sql", "create table if not exists foo (id int, name char(100) NOT NULL);");
         createFile(contextTester, "file5.sql", "create table if not exists foo (id int, name varchar(100) NOT NULL);");
         createFile(contextTester, "file6.sql", "create table if not exists foo (id int, name varchar NOT NULL);");
+        createFile(contextTester, "file7.sql", "create table if not exists foo (id int\n)");
 
         PlPgSqlSensor sensor = new PlPgSqlSensor();
         sensor.execute(contextTester);
