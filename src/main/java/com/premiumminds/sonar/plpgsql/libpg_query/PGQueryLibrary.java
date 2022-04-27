@@ -26,4 +26,10 @@ public interface PGQueryLibrary extends Library {
      * <i>native declaration : line 17</i>
      */
     PgQueryParseResult.ByValue pg_query_parse(String input);
+
+    /**
+     * Original signature : <code>void pg_query_free_parse_result(PgQueryParseResult)</code><br>
+     * <i>native declaration : line 19</i>
+     */
+    void pg_query_free_parse_result(PgQueryParseResult.ByValue result);
 }

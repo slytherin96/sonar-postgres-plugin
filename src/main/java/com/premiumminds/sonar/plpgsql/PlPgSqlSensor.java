@@ -65,10 +65,14 @@ public class PlPgSqlSensor implements Sensor {
                     newIssue.at(primaryLocation);
                     newIssue.save();
 
+                    PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
+
                     continue;
                 }
 
                 parseTree(context, file, contents, eolOffsets, result.parse_tree.getString(0));
+
+                PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
