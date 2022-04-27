@@ -53,7 +53,7 @@ public class PlPgSqlSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
-        descriptor.name("Add issues on line 1 of all Java files");
+        descriptor.name("Analyzes issues on Postgresql script files");
         descriptor.onlyOnLanguage(PlPgSqlLanguage.KEY);
         descriptor.createIssuesForRuleRepositories(PlPgSqlRulesDefinition.REPOSITORY);
     }
