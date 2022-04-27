@@ -53,12 +53,24 @@ docker logs -f sonarqube
 ### SonarScanner for Maven
 
 ```shell
-mvn  sonar:sonar \
+mvn sonar:sonar \
   -Dsonar.login=admin \
   -Dsonar.password=admin1 \
   -Dsonar.host.url=http://localhost:9000/
 ```
 
+### SonarScanner
+
+```shell
+wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+unzip sonar-scanner-cli-4.7.0.2747-linux.zip
+cd sonar-scanner-4.7.0.2747-linux
+bin/sonar-scanner \
+  -Dsonar.login=admin \
+  -Dsonar.password=admin1 \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.projectKey=plpgsql-test
+```
 
 ## Acknowledgements
  * [Squawk](https://squawkhq.com/)
