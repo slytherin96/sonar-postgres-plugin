@@ -32,4 +32,42 @@ public interface PGQueryLibrary extends Library {
      * <i>native declaration : line 19</i>
      */
     void pg_query_free_parse_result(PgQueryParseResult.ByValue result);
+
+
+    /**
+     * Original signature : <code>PgQueryProtobufParseResult pg_query_parse_protobuf(const char*)</code><br>
+     * <i>native declaration : line 23</i><br>
+     * @deprecated use the safer methods {@link #pg_query_parse_protobuf(java.lang.String)} and {@link #pg_query_parse_protobuf(com.sun.jna.Pointer)} instead
+     */
+    @Deprecated
+    PgQueryProtobufParseResult.ByValue pg_query_parse_protobuf(Pointer input);
+    /**
+     * Original signature : <code>PgQueryProtobufParseResult pg_query_parse_protobuf(const char*)</code><br>
+     * <i>native declaration : line 23</i>
+     */
+    PgQueryProtobufParseResult.ByValue pg_query_parse_protobuf(String input);
+
+    /**
+     * Original signature : <code>void pg_query_free_protobuf_parse_result(PgQueryProtobufParseResult)</code><br>
+     * <i>native declaration : line 25</i>
+     */
+    void pg_query_free_protobuf_parse_result(PgQueryProtobufParseResult.ByValue result);
+
+    /**
+     * Original signature : <code>PgQueryScanResult pg_query_scan(const char*)</code><br>
+     * <i>native declaration : line 29</i><br>
+     * @deprecated use the safer methods {@link #pg_query_scan(java.lang.String)} and {@link #pg_query_scan(com.sun.jna.Pointer)} instead
+     */
+    @Deprecated
+    PgQueryScanResult.ByValue pg_query_scan(Pointer input);
+    /**
+     * Original signature : <code>PgQueryScanResult pg_query_scan(const char*)</code><br>
+     * <i>native declaration : line 29</i>
+     */
+    PgQueryScanResult.ByValue pg_query_scan(String input);
+    /**
+     * Original signature : <code>void pg_query_free_scan_result(PgQueryScanResult)</code><br>
+     * <i>native declaration : line 30</i>
+     */
+    void pg_query_free_scan_result(PgQueryScanResult.ByValue result);
 }
