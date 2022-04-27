@@ -12,13 +12,23 @@ import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryScanResult;
 import com.premiumminds.sonar.plpgsql.protobuf.ScanResult;
 import com.premiumminds.sonar.plpgsql.protobuf.ScanToken;
 import com.premiumminds.sonar.plpgsql.protobuf.Token;
+import com.premiumminds.sonar.plpgsql.rules.AlterSeqStmt;
 import com.premiumminds.sonar.plpgsql.rules.AlterTableStmt;
+import com.premiumminds.sonar.plpgsql.rules.CommentStmt;
+import com.premiumminds.sonar.plpgsql.rules.CreateExtensionStmt;
+import com.premiumminds.sonar.plpgsql.rules.CreateSeqStmt;
 import com.premiumminds.sonar.plpgsql.rules.CreateStmt;
+import com.premiumminds.sonar.plpgsql.rules.CreateTableAsStmt;
+import com.premiumminds.sonar.plpgsql.rules.DoStmt;
 import com.premiumminds.sonar.plpgsql.rules.DropStmt;
 import com.premiumminds.sonar.plpgsql.rules.DropdbStmt;
 import com.premiumminds.sonar.plpgsql.rules.IndexStmt;
+import com.premiumminds.sonar.plpgsql.rules.InsertStmt;
 import com.premiumminds.sonar.plpgsql.rules.RenameStmt;
+import com.premiumminds.sonar.plpgsql.rules.SelectStmt;
 import com.premiumminds.sonar.plpgsql.rules.Stmt;
+import com.premiumminds.sonar.plpgsql.rules.UpdateStmt;
+import com.premiumminds.sonar.plpgsql.rules.VariableSetStmt;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -71,7 +81,7 @@ public class PlPgSqlSensor implements Sensor {
     private void scanContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) throws InvalidProtocolBufferException {
         final PgQueryScanResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_scan(contents);
         if (result.error != null){
-            LOGGER.error("problem with file " + file.filename() + ": " + result.error.message.getString(0));
+            LOGGER.error("problem with file " + file.filename() + " at " + result.error.cursorpos + ": " + result.error.message.getString(0));
 
             final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
             NewIssue newIssue = context.newIssue()
@@ -106,7 +116,7 @@ public class PlPgSqlSensor implements Sensor {
     private void parseContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) {
         final PgQueryParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse(contents);
         if (result.error != null){
-            LOGGER.error("problem with file " + file.filename() + ": " + result.error.message.getString(0));
+            LOGGER.error("problem with file " + file.filename() + " at " + result.error.cursorpos + ": " + result.error.message.getString(0));
 
             final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
             NewIssue newIssue = context.newIssue()
@@ -186,6 +196,36 @@ public class PlPgSqlSensor implements Sensor {
                     break;
                 case "RenameStmt":
                     stmt = new RenameStmt();
+                    break;
+                case "InsertStmt":
+                    stmt = new InsertStmt();
+                    break;
+                case "DoStmt":
+                    stmt = new DoStmt();
+                    break;
+                case "SelectStmt":
+                    stmt = new SelectStmt();
+                    break;
+                case "CreateSeqStmt":
+                    stmt = new CreateSeqStmt();
+                    break;
+                case "AlterSeqStmt":
+                    stmt = new AlterSeqStmt();
+                    break;
+                case "UpdateStmt":
+                    stmt = new UpdateStmt();
+                    break;
+                case "VariableSetStmt":
+                    stmt = new VariableSetStmt();
+                    break;
+                case "CreateExtensionStmt":
+                    stmt = new CreateExtensionStmt();
+                    break;
+                case "CommentStmt":
+                    stmt = new CommentStmt();
+                    break;
+                case "CreateTableAsStmt":
+                    stmt = new CreateTableAsStmt();
                     break;
                 default:
                     LOGGER.warn(key + " not defined");

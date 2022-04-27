@@ -7,5 +7,6 @@ enum EnumConstraint {
     CONSTR_IDENTITY,
     CONSTR_PRIMARY,
     CONSTR_FOREIGN,
-    CONSTR_CHECK
+    CONSTR_CHECK,
+    CONSTR_NULL,
 }
