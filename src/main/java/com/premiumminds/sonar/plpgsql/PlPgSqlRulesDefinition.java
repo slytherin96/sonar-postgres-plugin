@@ -39,62 +39,77 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
 
         repository.createRule(RULE_PREFER_ROBUST_STMTS.rule())
                 .setName("prefer-robust-stmts rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("prefer-robust-stmts.md"));
 
         repository.createRule(RULE_CONCURRENTLY.rule())
                 .setName("concurrently rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("concurrently.md"));
 
         repository.createRule(RULE_ADD_FIELD_WITH_DEFAULT.rule())
                 .setName("adding-field-with-default rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("adding-field-with-default.md"));
 
         repository.createRule(RULE_ADD_FOREIGN_KEY.rule())
                 .setName("adding-foreign-key-constraint rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("adding-foreign-key-constraint.md"));
 
         repository.createRule(RULE_SETTING_NOT_NULLABLE_FIELD.rule())
                 .setName("setting-not-nullable-field rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("setting-not-nullable-field.md"));
 
         repository.createRule(RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD.rule())
                 .setName("adding-serial-primary-key-field rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("adding-serial-primary-key-field.md"));
 
         repository.createRule(RULE_BAN_CHAR_FIELD.rule())
                 .setName("ban-char-field rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("ban-char-field.md"));
 
         repository.createRule(RULE_BAN_DROP_DATABASE.rule())
                 .setName("ban-drop-database rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("ban-drop-database.md"));
 
         repository.createRule(RULE_CHANGING_COLUMN_TYPE.rule())
                 .setName("changing-column-type rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("changing-column-type.md"));
 
         repository.createRule(RULE_CONSTRAINT_MISSING_NOT_VALID.rule())
                 .setName("constraint-missing-not-valid rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("constraint-missing-not-valid.md"));
 
         repository.createRule(RULE_DISALLOWED_UNIQUE_CONSTRAINT.rule())
                 .setName("disallowed-unique-constraint rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("disallowed-unique-constraint.md"));
 
         repository.createRule(RULE_PREFER_TEXT_FIELD.rule())
                 .setName("prefer-text-field rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("prefer-text-field.md"));
 
         repository.createRule(RULE_RENAMING_COLUMN.rule())
                 .setName("renaming-column rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("renaming-column.md"));
 
         repository.createRule(RULE_RENAMING_TABLE.rule())
                 .setName("renaming-table rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("renaming-table.md"));
 
         repository.createRule(RULE_IDENTIFIER_MAX_LENGTH.rule())
                 .setName("identifier-max-length rule")
+                .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("identifier-max-length.md"));
 
         repository.done();
