@@ -1,8 +1,7 @@
-package com.premiumminds.sonar.plpgsql;
+package com.premiumminds.sonar.postgres;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

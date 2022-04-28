@@ -3,7 +3,7 @@ package com.premiumminds.sonar.postgres.analyzers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import org.sonar.api.batch.fs.InputFile;

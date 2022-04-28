@@ -56,7 +56,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <pluginKey>plpgsql</pluginKey>
-                    <pluginClass>com.premiumminds.sonar.plpgsql.PlPgSqlExtension</pluginClass>
+                    <pluginClass>com.premiumminds.sonar.postgres.PlPgSqlExtension</pluginClass>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql;
+package com.premiumminds.sonar.postgres;
 
 import java.util.Collections;
 import java.util.List;

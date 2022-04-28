@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
@@ -14,7 +14,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
+import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
 
 public class AlterTableStmtAnalyzer implements Analyzer {
     private final AlterTableStmt alterTableStmt;

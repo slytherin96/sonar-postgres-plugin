@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql;
+package com.premiumminds.sonar.postgres;
 
 import org.sonar.api.Plugin;
 
