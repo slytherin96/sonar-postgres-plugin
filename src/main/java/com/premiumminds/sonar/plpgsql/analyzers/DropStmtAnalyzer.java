@@ -1,5 +1,9 @@
 package com.premiumminds.sonar.plpgsql.analyzers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
 import com.premiumminds.sonar.plpgsql.protobuf.DropStmt;
 import com.premiumminds.sonar.plpgsql.protobuf.ObjectType;
@@ -21,13 +25,38 @@ public class DropStmtAnalyzer implements Analyzer {
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange) {
 
+        final List<String> names = dropStmt.getObjectsList()
+                .stream()
+                .map(y -> y.getList()
+                        .getItemsList())
+                .flatMap(List::stream)
+                .map(x -> x.getString().getStr())
+                .collect(Collectors.toList());
+
+        String message = null;
+        final ObjectType removeType = dropStmt.getRemoveType();
+        switch (removeType){
+            case OBJECT_TABLE:
+                message = "Add IF EXISTS to DROP TABLE " + String.join(", ", names);
+                break;
+            case OBJECT_SEQUENCE:
+                message = "Add IF EXISTS to DROP SEQUENCE " + String.join(", ", names);
+                break;
+            case OBJECT_INDEX:
+                message = "Add IF EXISTS to DROP INDEX " + String.join(", ", names);
+                break;
+            default:
+                message = "Add IF EXISTS";
+                break;
+        }
+
         if(!dropStmt.getMissingOk()){
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
+                    .message(message);
             newIssue.at(primaryLocation);
             newIssue.save();
         }
@@ -38,7 +67,7 @@ public class DropStmtAnalyzer implements Analyzer {
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add CONCURRENTLY");
+                    .message("Add CONCURRENTLY to DROP INDEX " + String.join(", ", names));
             newIssue.at(primaryLocation);
             newIssue.save();
         }

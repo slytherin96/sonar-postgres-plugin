@@ -72,6 +72,26 @@ CREATE INDEX CONCURRENTLY "email_idx" ON "app_user" ("email");
 CREATE INDEX CONCURRENTLY IF NOT EXISTS "email_idx" ON "app_user" ("email");
 ``
 
+=== add sequence
+
+``sql
+-- instead of:
+CREATE SEQUENCE foo START 101;
+
+-- use:
+CREATE SEQUENCE IF NOT EXISTS foo START 101;
+``
+
+=== alter sequence
+
+``sql
+-- instead of:
+ALTER SEQUENCE foo RESTART WITH 105;
+
+-- use:
+ALTER SEQUENCE IF EXISTS foo RESTART WITH 105;
+``
+
 === remove table
 
 ``sql
@@ -110,4 +130,14 @@ DROP INDEX "foo_idx";
 
 -- use:
 DROP INDEX IF EXISTS "foo_idx";
+``
+
+=== drop sequence
+
+``sql
+-- instead of:
+DROP SEQUENCE foo;
+
+-- use:
+DROP SEQUENCE IF EXISTS foo;
 ``

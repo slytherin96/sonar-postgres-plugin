@@ -72,22 +72,74 @@ class PlPgSqlSensorTest {
     }
 
     @Test
-    void dropStatement() {
+    void createSequenceStatement() {
 
-        createFile(contextTester, "file1.sql", "drop table foo;");
-        createFile(contextTester, "file2.sql", "DROP DATABASE foo;");
-        createFile(contextTester, "file3.sql", "DROP INDEX IF EXISTS foo_idx;");
+        createFile(contextTester, "file1.sql", "CREATE SEQUENCE foo START 101;");
 
         PlPgSqlSensor sensor = new PlPgSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
 
-        assertEquals(3, issueMap.size());
+        assertEquals(1, issueMap.size());
 
         assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("Add IF NOT EXISTS to CREATE SEQUENCE foo",
+                issueMap.get(":file1.sql").primaryLocation().message());
+    }
+
+    @Test
+    void alterSequenceStatement() {
+
+        createFile(contextTester, "file1.sql", "ALTER SEQUENCE foo RESTART WITH 105;");
+
+        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        sensor.execute(contextTester);
+
+        Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
+
+        assertEquals(1, issueMap.size());
+
+        assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to ALTER SEQUENCE foo",
+                issueMap.get(":file1.sql").primaryLocation().message());
+    }
+
+    @Test
+    void dropStatement() {
+
+        createFile(contextTester, "file1.sql", "drop table foo, bar;");
+        createFile(contextTester, "file2.sql", "DROP DATABASE foo;");
+        createFile(contextTester, "file3.sql", "DROP INDEX IF EXISTS idx1, idx2;");
+        createFile(contextTester, "file4.sql", "DROP INDEX CONCURRENTLY idx1;");
+        createFile(contextTester, "file5.sql", "DROP SEQUENCE foo, bar;");
+
+        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        sensor.execute(contextTester);
+
+        Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
+
+        assertEquals(5, issueMap.size());
+
+        assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to DROP TABLE foo, bar",
+                issueMap.get(":file1.sql").primaryLocation().message());
+
         assertEquals("ban-drop-database", issueMap.get(":file2.sql").ruleKey().rule());
+        assertEquals("Dropping a database may break existing clients.",
+                issueMap.get(":file2.sql").primaryLocation().message());
+
         assertEquals("concurrently", issueMap.get(":file3.sql").ruleKey().rule());
+        assertEquals("Add CONCURRENTLY to DROP INDEX idx1, idx2",
+                issueMap.get(":file3.sql").primaryLocation().message());
+
+        assertEquals("prefer-robust-stmts", issueMap.get(":file4.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to DROP INDEX idx1",
+                issueMap.get(":file4.sql").primaryLocation().message());
+
+        assertEquals("prefer-robust-stmts", issueMap.get(":file5.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to DROP SEQUENCE foo, bar",
+                issueMap.get(":file5.sql").primaryLocation().message());
     }
 
     @Test

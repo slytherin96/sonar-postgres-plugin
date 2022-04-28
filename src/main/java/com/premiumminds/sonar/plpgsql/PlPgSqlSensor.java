@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.premiumminds.sonar.plpgsql.analyzers.AlterSeqStmtAnalyzer;
 import com.premiumminds.sonar.plpgsql.analyzers.AlterTableStmtAnalyzer;
 import com.premiumminds.sonar.plpgsql.analyzers.Analyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.CreateSeqStmtAnalyzer;
 import com.premiumminds.sonar.plpgsql.analyzers.CreateStmtAnalyzer;
 import com.premiumminds.sonar.plpgsql.analyzers.DropStmtAnalyzer;
 import com.premiumminds.sonar.plpgsql.analyzers.DropdbStmtAnalyzer;
@@ -166,6 +168,10 @@ public class PlPgSqlSensor implements Sensor {
             analyzer = new AlterTableStmtAnalyzer(rawStmt.getStmt().getAlterTableStmt());
         } else if (rawStmt.getStmt().hasRenameStmt()){
             analyzer = new RenameStmtAnalyzer(rawStmt.getStmt().getRenameStmt());
+        } else if (rawStmt.getStmt().hasCreateSeqStmt()){
+            analyzer = new CreateSeqStmtAnalyzer(rawStmt.getStmt().getCreateSeqStmt());
+        } else if (rawStmt.getStmt().hasAlterSeqStmt()){
+            analyzer = new AlterSeqStmtAnalyzer(rawStmt.getStmt().getAlterSeqStmt());
         }
 
         if (analyzer != null) {
