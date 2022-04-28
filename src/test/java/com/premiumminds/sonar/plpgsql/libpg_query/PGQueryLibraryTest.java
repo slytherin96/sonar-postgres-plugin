@@ -90,4 +90,28 @@ class PGQueryLibraryTest {
         PGQueryLibrary.INSTANCE.pg_query_free_scan_result(result);
 
     }
+
+    @Test
+    public void pg_query_parse_plpgsql() {
+        final String query = "CREATE OR REPLACE FUNCTION cs_fmt_browser_version(v_name varchar, \n" +
+                "                                                  v_version varchar) \n" +
+                "RETURNS varchar AS $$\n" +
+                "BEGIN \n" +
+                "    IF v_version IS NULL THEN \n" +
+                "        RETURN v_name; \n" +
+                "    END IF; \n" +
+                "    RETURN v_name || '/' || v_version; \n" +
+                "END;\n" +
+                "$$ LANGUAGE plpgsql;";
+
+        final PgQueryPlpgsqlParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse_plpgsql(query);
+        assertNull(result.error);
+
+        assertEquals("[\n" +
+                        "{\"PLpgSQL_function\":{\"datums\":[{\"PLpgSQL_var\":{\"refname\":\"v_name\",\"datatype\":{\"PLpgSQL_type\":{\"typname\":\"UNKNOWN\"}}}},{\"PLpgSQL_var\":{\"refname\":\"v_version\",\"datatype\":{\"PLpgSQL_type\":{\"typname\":\"UNKNOWN\"}}}},{\"PLpgSQL_var\":{\"refname\":\"found\",\"datatype\":{\"PLpgSQL_type\":{\"typname\":\"UNKNOWN\"}}}}],\"action\":{\"PLpgSQL_stmt_block\":{\"lineno\":2,\"body\":[{\"PLpgSQL_stmt_if\":{\"lineno\":3,\"cond\":{\"PLpgSQL_expr\":{\"query\":\"SELECT v_version IS NULL\"}},\"then_body\":[{\"PLpgSQL_stmt_return\":{\"lineno\":4,\"expr\":{\"PLpgSQL_expr\":{\"query\":\"SELECT v_name\"}}}}]}},{\"PLpgSQL_stmt_return\":{\"lineno\":6,\"expr\":{\"PLpgSQL_expr\":{\"query\":\"SELECT v_name || '/' || v_version\"}}}}]}}}}\n" +
+                        "]",
+                result.plpgsql_funcs.getString(0));
+
+        PGQueryLibrary.INSTANCE.pg_query_free_plpgsql_parse_result(result);
+    }
 }

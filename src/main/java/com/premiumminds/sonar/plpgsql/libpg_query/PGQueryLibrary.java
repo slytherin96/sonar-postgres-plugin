@@ -70,4 +70,22 @@ public interface PGQueryLibrary extends Library {
      * <i>native declaration : line 30</i>
      */
     void pg_query_free_scan_result(PgQueryScanResult.ByValue result);
+
+    /**
+     * Original signature : <code>PgQueryPlpgsqlParseResult pg_query_parse_plpgsql(const char*)</code><br>
+     * <i>native declaration : line 40</i><br>
+     * @deprecated use the safer methods {@link #pg_query_parse_plpgsql(java.lang.String)} and {@link #pg_query_parse_plpgsql(com.sun.jna.Pointer)} instead
+     */
+    @Deprecated
+    PgQueryPlpgsqlParseResult.ByValue pg_query_parse_plpgsql(Pointer input);
+    /**
+     * Original signature : <code>PgQueryPlpgsqlParseResult pg_query_parse_plpgsql(const char*)</code><br>
+     * <i>native declaration : line 40</i>
+     */
+    PgQueryPlpgsqlParseResult.ByValue pg_query_parse_plpgsql(String input);
+    /**
+     * Original signature : <code>void pg_query_free_plpgsql_parse_result(PgQueryPlpgsqlParseResult)</code><br>
+     * <i>native declaration : line 41</i>
+     */
+    void pg_query_free_plpgsql_parse_result(PgQueryPlpgsqlParseResult.ByValue result);
 }
