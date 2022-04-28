@@ -7,7 +7,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 public class PlPgSqlRulesDefinition implements RulesDefinition {
 
-    public static final String REPOSITORY = "plpgsql-repository";
+    public static final String REPOSITORY = "postgres-repository";
 
     public static final RuleKey RULE_PARSE_ERROR = RuleKey.of(REPOSITORY, "parse-error");
     public static final RuleKey RULE_PREFER_ROBUST_STMTS = RuleKey.of(REPOSITORY, "prefer-robust-stmts");

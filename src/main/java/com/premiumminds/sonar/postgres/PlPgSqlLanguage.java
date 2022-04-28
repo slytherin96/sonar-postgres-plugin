@@ -10,11 +10,11 @@ import org.sonar.api.resources.Qualifiers;
 
 public class PlPgSqlLanguage extends AbstractLanguage {
 
-    public static final String FILE_SUFFIXES_KEY = "sonar.plpgsql.file.suffixes";
+    public static final String FILE_SUFFIXES_KEY = "sonar.postgres.file.suffixes";
     public static final String FILE_SUFFIXES_DEFAULT_VALUE = ".sql";
 
-    public static final String NAME = "PL/pgSQL";
-    public static final String KEY = "plpgsql-language";
+    public static final String NAME = "Postgres SQL";
+    public static final String KEY = "postgres-language";
 
     private final Configuration config;
 

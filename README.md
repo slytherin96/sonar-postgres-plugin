@@ -1,6 +1,6 @@
-# sonar-plpgsql-plugin
+# sonar-postgres-plugin
 
-Sonar plugin to analyze PL/pgSQL scripts
+Sonar plugin to analyze Postgres SQL scripts
 
 ## Screenshot
 
@@ -48,7 +48,7 @@ mvn clean package
 
 ```shell
 docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:lts-community
-docker cp target/sonar-plpgsql-plugin-1.0-SNAPSHOT.jar sonarqube:/opt/sonarqube/extensions/plugins/
+docker cp target/sonar-postgres-plugin-1.0-SNAPSHOT.jar sonarqube:/opt/sonarqube/extensions/plugins/
 docker restart sonarqube
 xdg-open http://localhost:9000/
 docker logs -f sonarqube
@@ -73,7 +73,7 @@ bin/sonar-scanner \
   -Dsonar.login=admin \
   -Dsonar.password=admin1 \
   -Dsonar.host.url=http://localhost:9000 \
-  -Dsonar.projectKey=plpgsql-test
+  -Dsonar.projectKey=postgres-test
 ```
 
 ## Acknowledgements

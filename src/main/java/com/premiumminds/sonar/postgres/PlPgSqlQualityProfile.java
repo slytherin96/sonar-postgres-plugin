@@ -24,7 +24,7 @@ import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_SETTIN
 public class PlPgSqlQualityProfile implements BuiltInQualityProfilesDefinition {
     @Override
     public void define(Context context) {
-        NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("PL/pgSQL Rules", PlPgSqlLanguage.KEY);
+        NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("Postgres SQL Rules", PlPgSqlLanguage.KEY);
         profile.setDefault(true);
 
         activateRule(profile, RULE_PARSE_ERROR);

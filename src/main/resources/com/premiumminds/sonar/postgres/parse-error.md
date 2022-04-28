@@ -1,1 +1,1 @@
-Generates an issue when PL/pgSQL is not valid and fails to parse
+Generates an issue when Postgres SQL is not valid and fails to parse
