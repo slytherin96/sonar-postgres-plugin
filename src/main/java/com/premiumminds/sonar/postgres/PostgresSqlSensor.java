@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.premiumminds.sonar.postgres.analyzers.AlterSeqStmtAnalyzer;
 import com.premiumminds.sonar.postgres.analyzers.AlterTableStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.Analyzer;
+import com.premiumminds.sonar.postgres.analyzers.StmtAnalyzer;
 import com.premiumminds.sonar.postgres.analyzers.CreateSeqStmtAnalyzer;
 import com.premiumminds.sonar.postgres.analyzers.CreateStmtAnalyzer;
 import com.premiumminds.sonar.postgres.analyzers.DropStmtAnalyzer;
@@ -155,27 +155,27 @@ public class PostgresSqlSensor implements Sensor {
     }
 
     private void parseStatement(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt){
-        Analyzer analyzer = null;
+        StmtAnalyzer stmtAnalyzer = null;
         if (rawStmt.getStmt().hasCreateStmt()) {
-            analyzer = new CreateStmtAnalyzer(rawStmt.getStmt().getCreateStmt());
+            stmtAnalyzer = new CreateStmtAnalyzer(rawStmt.getStmt().getCreateStmt());
         } else if (rawStmt.getStmt().hasIndexStmt()){
-            analyzer = new IndexStmtAnalyzer(rawStmt.getStmt().getIndexStmt());
+            stmtAnalyzer = new IndexStmtAnalyzer(rawStmt.getStmt().getIndexStmt());
         } else if (rawStmt.getStmt().hasDropStmt()){
-            analyzer = new DropStmtAnalyzer(rawStmt.getStmt().getDropStmt());
+            stmtAnalyzer = new DropStmtAnalyzer(rawStmt.getStmt().getDropStmt());
         } else if (rawStmt.getStmt().hasDropdbStmt()){
-            analyzer = new DropdbStmtAnalyzer(rawStmt.getStmt().getDropdbStmt());
+            stmtAnalyzer = new DropdbStmtAnalyzer(rawStmt.getStmt().getDropdbStmt());
         } else if (rawStmt.getStmt().hasAlterTableStmt()){
-            analyzer = new AlterTableStmtAnalyzer(rawStmt.getStmt().getAlterTableStmt());
+            stmtAnalyzer = new AlterTableStmtAnalyzer(rawStmt.getStmt().getAlterTableStmt());
         } else if (rawStmt.getStmt().hasRenameStmt()){
-            analyzer = new RenameStmtAnalyzer(rawStmt.getStmt().getRenameStmt());
+            stmtAnalyzer = new RenameStmtAnalyzer(rawStmt.getStmt().getRenameStmt());
         } else if (rawStmt.getStmt().hasCreateSeqStmt()){
-            analyzer = new CreateSeqStmtAnalyzer(rawStmt.getStmt().getCreateSeqStmt());
+            stmtAnalyzer = new CreateSeqStmtAnalyzer(rawStmt.getStmt().getCreateSeqStmt());
         } else if (rawStmt.getStmt().hasAlterSeqStmt()){
-            analyzer = new AlterSeqStmtAnalyzer(rawStmt.getStmt().getAlterSeqStmt());
+            stmtAnalyzer = new AlterSeqStmtAnalyzer(rawStmt.getStmt().getAlterSeqStmt());
         }
 
-        if (analyzer != null) {
-            analyzer.validate(context, file, textRange);
+        if (stmtAnalyzer != null) {
+            stmtAnalyzer.validate(context, file, textRange);
         }
     }
 

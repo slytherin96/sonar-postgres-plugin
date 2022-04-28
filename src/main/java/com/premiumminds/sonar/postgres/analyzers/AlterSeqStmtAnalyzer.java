@@ -8,7 +8,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class AlterSeqStmtAnalyzer implements Analyzer {
+public class AlterSeqStmtAnalyzer implements StmtAnalyzer {
     private final AlterSeqStmt alterSeqStmt;
 
     public AlterSeqStmtAnalyzer(AlterSeqStmt alterSeqStmt) {

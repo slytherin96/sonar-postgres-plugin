@@ -10,7 +10,7 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 
-public class RenameStmtAnalyzer implements Analyzer {
+public class RenameStmtAnalyzer implements StmtAnalyzer {
     private final RenameStmt renameStmt;
 
     public RenameStmtAnalyzer(RenameStmt renameStmt) {

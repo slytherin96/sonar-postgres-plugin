@@ -16,7 +16,7 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
 
-public class AlterTableStmtAnalyzer implements Analyzer {
+public class AlterTableStmtAnalyzer implements StmtAnalyzer {
     private final AlterTableStmt alterTableStmt;
 
     public AlterTableStmtAnalyzer(AlterTableStmt alterTableStmt) {

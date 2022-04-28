@@ -8,7 +8,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class IndexStmtAnalyzer implements Analyzer {
+public class IndexStmtAnalyzer implements StmtAnalyzer {
 
     private final IndexStmt indexStmt;
 

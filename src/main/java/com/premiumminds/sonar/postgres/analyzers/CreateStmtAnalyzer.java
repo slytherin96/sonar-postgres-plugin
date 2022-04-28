@@ -10,7 +10,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class CreateStmtAnalyzer implements Analyzer {
+public class CreateStmtAnalyzer implements StmtAnalyzer {
 
     private final CreateStmt createStmt;
 

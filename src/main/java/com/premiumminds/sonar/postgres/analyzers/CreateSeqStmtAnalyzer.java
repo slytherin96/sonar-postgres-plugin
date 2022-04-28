@@ -8,7 +8,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class CreateSeqStmtAnalyzer implements Analyzer {
+public class CreateSeqStmtAnalyzer implements StmtAnalyzer {
 
     private final CreateSeqStmt createSeqStmt;
 

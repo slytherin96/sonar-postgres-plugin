@@ -8,7 +8,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class DropdbStmtAnalyzer implements Analyzer {
+public class DropdbStmtAnalyzer implements StmtAnalyzer {
 
     private final DropdbStmt dropdbStmt;
 
