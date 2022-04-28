@@ -5,7 +5,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 
-public class PlPgSqlRulesDefinition implements RulesDefinition {
+public class PostgresSqlRulesDefinition implements RulesDefinition {
 
     public static final String REPOSITORY = "postgres-repository";
 
@@ -30,7 +30,7 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
     @Override
     public void define(Context context) {
 
-        NewRepository repository = context.createRepository(REPOSITORY, PlPgSqlLanguage.KEY);
+        NewRepository repository = context.createRepository(REPOSITORY, PostgresSqlLanguage.KEY);
 
         repository.createRule(RULE_PARSE_ERROR.rule())
                 .setName("parse error rule")

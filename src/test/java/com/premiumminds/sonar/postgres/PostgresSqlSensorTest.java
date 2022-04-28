@@ -15,7 +15,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PlPgSqlSensorTest {
+class PostgresSqlSensorTest {
 
     SensorContextTester contextTester;
 
@@ -30,7 +30,7 @@ class PlPgSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "not valid sql;");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -53,7 +53,7 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file3.sql",
                 "create index concurrently if not exists a23456789_123456789_123456789_123456789_123456789_123456789_123456789_ on foo (id);");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -81,7 +81,7 @@ class PlPgSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "CREATE SEQUENCE foo START 101;");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -99,7 +99,7 @@ class PlPgSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "ALTER SEQUENCE foo RESTART WITH 105;");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -117,7 +117,7 @@ class PlPgSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "ALTER INDEX foo RENAME TO bar;");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -139,7 +139,7 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file4.sql", "DROP INDEX CONCURRENTLY idx1;");
         createFile(contextTester, "file5.sql", "DROP SEQUENCE foo, bar;");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -183,7 +183,7 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file6.sql", "create table if not exists foo (id int, name varchar NOT NULL);");
         createFile(contextTester, "file7.sql", "create table if not exists foo (id int\n)");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -222,7 +222,7 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file1.sql", "create index if not exists idx1 on foo (id);");
         createFile(contextTester, "file2.sql", "create index concurrently idx1 on foo (id);");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -275,7 +275,7 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file21.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT random();");
         createFile(contextTester, "file22.sql", "ALTER INDEX foo SET (fillfactor = 75);");
 
-        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        PostgresSqlSensor sensor = new PostgresSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, List<Issue>> issueMap = groupbyFile(contextTester.allIssues());
@@ -379,7 +379,7 @@ class PlPgSqlSensorTest {
 
     private void createFile(SensorContextTester contextTester, String relativePath, String content) {
         contextTester.fileSystem().add(TestInputFileBuilder.create("", relativePath)
-                .setLanguage(PlPgSqlLanguage.KEY)
+                .setLanguage(PostgresSqlLanguage.KEY)
                 .setContents(content)
                 .build());
     }

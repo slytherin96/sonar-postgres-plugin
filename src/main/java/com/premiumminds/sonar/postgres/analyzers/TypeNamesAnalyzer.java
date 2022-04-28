@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.TypeName;
 import org.sonar.api.batch.fs.InputFile;
@@ -18,7 +18,7 @@ public class TypeNamesAnalyzer {
             final String str = name.getString().getStr();
             if ("bpchar".equals(str)){
                 NewIssue newIssue = context.newIssue()
-                        .forRule(PlPgSqlRulesDefinition.RULE_BAN_CHAR_FIELD);
+                        .forRule(PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD);
                 NewIssueLocation primaryLocation = newIssue.newLocation()
                         .on(file)
                         .at(textRange)
@@ -28,7 +28,7 @@ public class TypeNamesAnalyzer {
             }
             if ("varchar".equals(str) && typeName.getTypmodsList().size() != 0){
                 NewIssue newIssue = context.newIssue()
-                        .forRule(PlPgSqlRulesDefinition.RULE_PREFER_TEXT_FIELD);
+                        .forRule(PostgresSqlRulesDefinition.RULE_PREFER_TEXT_FIELD);
                 NewIssueLocation primaryLocation = newIssue.newLocation()
                         .on(file)
                         .at(textRange)

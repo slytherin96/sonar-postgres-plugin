@@ -3,7 +3,7 @@ package com.premiumminds.sonar.postgres.analyzers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import org.sonar.api.batch.fs.InputFile;
@@ -51,7 +51,7 @@ public class DropStmtAnalyzer implements Analyzer {
             }
 
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -62,7 +62,7 @@ public class DropStmtAnalyzer implements Analyzer {
 
         if (dropStmt.getRemoveType().equals(ObjectType.OBJECT_INDEX) && !dropStmt.getConcurrent()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_CONCURRENTLY);
+                    .forRule(PostgresSqlRulesDefinition.RULE_CONCURRENTLY);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)

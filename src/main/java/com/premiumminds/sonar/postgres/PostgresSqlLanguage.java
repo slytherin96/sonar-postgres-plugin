@@ -8,7 +8,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Qualifiers;
 
-public class PlPgSqlLanguage extends AbstractLanguage {
+public class PostgresSqlLanguage extends AbstractLanguage {
 
     public static final String FILE_SUFFIXES_KEY = "sonar.postgres.file.suffixes";
     public static final String FILE_SUFFIXES_DEFAULT_VALUE = ".sql";
@@ -18,7 +18,7 @@ public class PlPgSqlLanguage extends AbstractLanguage {
 
     private final Configuration config;
 
-    public PlPgSqlLanguage(Configuration config) {
+    public PostgresSqlLanguage(Configuration config) {
         super(KEY, NAME);
         this.config = config;
     }

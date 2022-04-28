@@ -33,23 +33,23 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-public class PlPgSqlSensor implements Sensor {
+public class PostgresSqlSensor implements Sensor {
 
-    private static final Logger LOGGER = Loggers.get(PlPgSqlSensor.class);
+    private static final Logger LOGGER = Loggers.get(PostgresSqlSensor.class);
 
     private static final int POSTGRESQL_MAX_IDENTIFIER_LENGTH = 63;
 
     @Override
     public void describe(SensorDescriptor descriptor) {
         descriptor.name("Analyzes issues on Postgresql script files");
-        descriptor.onlyOnLanguage(PlPgSqlLanguage.KEY);
-        descriptor.createIssuesForRuleRepositories(PlPgSqlRulesDefinition.REPOSITORY);
+        descriptor.onlyOnLanguage(PostgresSqlLanguage.KEY);
+        descriptor.createIssuesForRuleRepositories(PostgresSqlRulesDefinition.REPOSITORY);
     }
 
     @Override
     public void execute(SensorContext context) {
         FileSystem fs = context.fileSystem();
-        Iterable<InputFile> files = fs.inputFiles(fs.predicates().hasLanguage(PlPgSqlLanguage.KEY));
+        Iterable<InputFile> files = fs.inputFiles(fs.predicates().hasLanguage(PostgresSqlLanguage.KEY));
         for (InputFile file : files) {
 
             try {
@@ -73,7 +73,7 @@ public class PlPgSqlSensor implements Sensor {
 
             final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PARSE_ERROR);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PARSE_ERROR);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(file.selectLine(textPointer.line()))
@@ -89,7 +89,7 @@ public class PlPgSqlSensor implements Sensor {
                 .forEach(st -> {
                     final String identifier = contents.substring(st.getStart(), st.getEnd());
                     NewIssue newIssue = context.newIssue()
-                            .forRule(PlPgSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH);
+                            .forRule(PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH);
                     NewIssueLocation primaryLocation = newIssue.newLocation()
                             .on(file)
                             .at(parseTextRange(file, eolOffsets, st))
@@ -108,7 +108,7 @@ public class PlPgSqlSensor implements Sensor {
 
             final TextPointer textPointer = convertAbsoluteOffsetToTextPointer(file, eolOffsets, result.error.cursorpos);
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PARSE_ERROR);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PARSE_ERROR);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(file.selectLine(textPointer.line()))

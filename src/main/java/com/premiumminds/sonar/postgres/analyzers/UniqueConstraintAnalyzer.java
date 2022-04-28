@@ -7,7 +7,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
 
 public class UniqueConstraintAnalyzer implements ConstraintAnalyzer {
 

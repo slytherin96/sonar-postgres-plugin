@@ -7,7 +7,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 
 public class CheckContraintAnalyzer implements ConstraintAnalyzer {
 

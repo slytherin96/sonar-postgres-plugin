@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -21,7 +21,7 @@ public class CreateSeqStmtAnalyzer implements Analyzer {
     public void validate(SensorContext context, InputFile file, TextRange textRange) {
         if (!createSeqStmt.getIfNotExists()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)

@@ -7,7 +7,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_ADD_FOREIGN_KEY;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ADD_FOREIGN_KEY;
 
 public class ForeignKeyConstraintAnalyzer implements ConstraintAnalyzer {
 

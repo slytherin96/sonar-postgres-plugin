@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
@@ -14,7 +14,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
 
 public class AlterTableStmtAnalyzer implements Analyzer {
     private final AlterTableStmt alterTableStmt;
@@ -42,7 +42,7 @@ public class AlterTableStmtAnalyzer implements Analyzer {
             }
 
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -84,7 +84,7 @@ public class AlterTableStmtAnalyzer implements Analyzer {
 
         if (!alterTableCmd.getMissingOk()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -119,7 +119,7 @@ public class AlterTableStmtAnalyzer implements Analyzer {
 
         if(!alterTableCmd.getMissingOk()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -134,7 +134,7 @@ public class AlterTableStmtAnalyzer implements Analyzer {
 
         if(!alterTableCmd.getMissingOk()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -144,7 +144,7 @@ public class AlterTableStmtAnalyzer implements Analyzer {
         }
 
         NewIssue newIssue = context.newIssue()
-                .forRule(PlPgSqlRulesDefinition.RULE_DROP_INDEX_DROPS_INDEX);
+                .forRule(PostgresSqlRulesDefinition.RULE_DROP_INDEX_DROPS_INDEX);
         NewIssueLocation primaryLocation = newIssue.newLocation()
                 .on(file)
                 .at(textRange)
@@ -155,7 +155,7 @@ public class AlterTableStmtAnalyzer implements Analyzer {
 
     private void alterColumnType(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
         NewIssue newIssue = context.newIssue()
-                .forRule(PlPgSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE);
+                .forRule(PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE);
         NewIssueLocation primaryLocation = newIssue.newLocation()
                 .on(file)
                 .at(textRange)

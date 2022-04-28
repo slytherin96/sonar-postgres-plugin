@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -22,7 +22,7 @@ public class IndexStmtAnalyzer implements Analyzer {
 
         if (!indexStmt.getIfNotExists()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
@@ -33,7 +33,7 @@ public class IndexStmtAnalyzer implements Analyzer {
 
         if (!indexStmt.getConcurrent()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(PlPgSqlRulesDefinition.RULE_CONCURRENTLY);
+                    .forRule(PostgresSqlRulesDefinition.RULE_CONCURRENTLY);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)

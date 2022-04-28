@@ -7,7 +7,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition.RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
 
 public class PrimaryKeyConstraintAnalyzer implements ConstraintAnalyzer {
 

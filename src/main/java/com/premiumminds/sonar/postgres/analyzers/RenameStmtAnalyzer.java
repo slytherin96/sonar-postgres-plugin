@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import org.sonar.api.batch.fs.InputFile;
@@ -27,17 +27,17 @@ public class RenameStmtAnalyzer implements Analyzer {
         final ObjectType renameType = renameStmt.getRenameType();
         switch (renameType){
             case OBJECT_COLUMN:
-                rule = PlPgSqlRulesDefinition.RULE_RENAMING_COLUMN;
+                rule = PostgresSqlRulesDefinition.RULE_RENAMING_COLUMN;
                 message = "Renaming a column may break existing clients.";
                 createIssue = true;
                 break;
             case OBJECT_TABLE:
-                rule = PlPgSqlRulesDefinition.RULE_RENAMING_TABLE;
+                rule = PostgresSqlRulesDefinition.RULE_RENAMING_TABLE;
                 message = "Renaming a table may break existing clients that depend on the old table name.";
                 createIssue = true;
                 break;
             case OBJECT_INDEX:
-                rule = PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
+                rule = PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
                 message = "Add IF EXISTS to ALTER INDEX " + renameStmt.getRelation().getRelname();
                 createIssue = !renameStmt.getMissingOk();
                 break;

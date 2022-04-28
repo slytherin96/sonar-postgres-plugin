@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.postgres.analyzers;
 
-import com.premiumminds.sonar.postgres.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -19,7 +19,7 @@ public class DropdbStmtAnalyzer implements Analyzer {
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange) {
         NewIssue newIssue = context.newIssue()
-                .forRule(PlPgSqlRulesDefinition.RULE_BAN_DROP_DATABASE);
+                .forRule(PostgresSqlRulesDefinition.RULE_BAN_DROP_DATABASE);
         NewIssueLocation primaryLocation = newIssue.newLocation()
                 .on(file)
                 .at(textRange)
