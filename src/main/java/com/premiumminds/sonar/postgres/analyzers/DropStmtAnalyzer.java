@@ -1,8 +1,7 @@
-package com.premiumminds.sonar.plpgsql.analyzers;
+package com.premiumminds.sonar.postgres.analyzers;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;

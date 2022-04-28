@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql.analyzers;
+package com.premiumminds.sonar.postgres.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;

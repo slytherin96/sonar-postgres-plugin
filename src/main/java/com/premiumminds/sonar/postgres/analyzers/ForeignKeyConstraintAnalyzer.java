@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql.analyzers;
+package com.premiumminds.sonar.postgres.analyzers;
 
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import org.sonar.api.batch.fs.InputFile;
@@ -7,19 +7,20 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
+import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_ADD_FOREIGN_KEY;
 
-public class UniqueConstraintAnalyzer implements ConstraintAnalyzer {
+public class ForeignKeyConstraintAnalyzer implements ConstraintAnalyzer {
 
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, Constraint constraint) {
-        if (constraint.getIndexname().isEmpty()){
+
+        if (constraint.getInitiallyValid() && !constraint.getSkipValidation()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(RULE_DISALLOWED_UNIQUE_CONSTRAINT);
+                    .forRule(RULE_ADD_FOREIGN_KEY);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Adding a UNIQUE constraint requires an ACCESS EXCLUSIVE lock which blocks reads and writes to the table while the index is built.");
+                    .message("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.");
             newIssue.at(primaryLocation);
             newIssue.save();
         }

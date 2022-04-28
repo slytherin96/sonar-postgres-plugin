@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql.analyzers;
+package com.premiumminds.sonar.postgres.analyzers;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;

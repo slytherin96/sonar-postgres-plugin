@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql.analyzers;
+package com.premiumminds.sonar.postgres.analyzers;
 
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import org.sonar.api.batch.fs.InputFile;
@@ -7,19 +7,19 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
+import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 
-public class PrimaryKeyConstraintAnalyzer implements ConstraintAnalyzer {
+public class CheckContraintAnalyzer implements ConstraintAnalyzer {
 
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange, Constraint constraint) {
-        if (constraint.getIndexname().isEmpty()){
+        if (constraint.getInitiallyValid() && !constraint.getSkipValidation()){
             NewIssue newIssue = context.newIssue()
-                    .forRule(RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD);
+                    .forRule(RULE_CONSTRAINT_MISSING_NOT_VALID);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("If PRIMARY KEY is specified, and the index's columns are not already marked NOT NULL, then this command will attempt to do ALTER COLUMN SET NOT NULL against each such column. That requires a full table scan to verify the column(s) contain no nulls. In all other cases, this is a fast operation.");
+                    .message("By default new constraints require a table scan and block writes to the table while that scan occurs.");
             newIssue.at(primaryLocation);
             newIssue.save();
         }
