@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql.libpg_query;
+package com.premiumminds.sonar.postgres.libpg_query;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,38 +10,37 @@ import com.sun.jna.Structure;
  * a tool written by <a href="http://ochafik.com/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> , <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
-public class PgQueryParseResult extends Structure {
-    /** C type : char* */
-    public Pointer parse_tree;
+public class PgQueryScanResult extends Structure {
+    /** C type : PgQueryProtobuf */
+    public PgQueryProtobuf pbuf;
     /** C type : char* */
     public Pointer stderr_buffer;
     /** C type : PgQueryError* */
     public PgQueryError.ByReference error;
-    public PgQueryParseResult() {
+    public PgQueryScanResult() {
         super();
     }
-    @Override
     protected List<String> getFieldOrder() {
-        return Arrays.asList("parse_tree", "stderr_buffer", "error");
+        return Arrays.asList("pbuf", "stderr_buffer", "error");
     }
     /**
-     * @param parse_tree C type : char*<br>
+     * @param pbuf C type : PgQueryProtobuf<br>
      * @param stderr_buffer C type : char*<br>
      * @param error C type : PgQueryError*
      */
-    public PgQueryParseResult(Pointer parse_tree, Pointer stderr_buffer, PgQueryError.ByReference error) {
+    public PgQueryScanResult(PgQueryProtobuf pbuf, Pointer stderr_buffer, PgQueryError.ByReference error) {
         super();
-        this.parse_tree = parse_tree;
+        this.pbuf = pbuf;
         this.stderr_buffer = stderr_buffer;
         this.error = error;
     }
-    public PgQueryParseResult(Pointer peer) {
+    public PgQueryScanResult(Pointer peer) {
         super(peer);
     }
-    public static class ByReference extends PgQueryParseResult implements Structure.ByReference {
+    public static class ByReference extends PgQueryScanResult implements Structure.ByReference {
 
     };
-    public static class ByValue extends PgQueryParseResult implements Structure.ByValue {
+    public static class ByValue extends PgQueryScanResult implements Structure.ByValue {
 
     };
 }

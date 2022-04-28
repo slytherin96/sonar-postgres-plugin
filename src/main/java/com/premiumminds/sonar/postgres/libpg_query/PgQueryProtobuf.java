@@ -1,4 +1,4 @@
-package com.premiumminds.sonar.plpgsql.libpg_query;
+package com.premiumminds.sonar.postgres.libpg_query;
 
 import java.util.Arrays;
 import java.util.List;

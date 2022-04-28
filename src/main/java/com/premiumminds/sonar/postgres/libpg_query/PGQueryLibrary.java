@@ -1,8 +1,7 @@
-package com.premiumminds.sonar.plpgsql.libpg_query;
+package com.premiumminds.sonar.postgres.libpg_query;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 
 /**
