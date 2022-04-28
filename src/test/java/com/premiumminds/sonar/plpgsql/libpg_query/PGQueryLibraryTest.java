@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.premiumminds.sonar.plpgsql.protobuf.ParseResult;
-import com.premiumminds.sonar.plpgsql.protobuf.RawStmt;
-import com.premiumminds.sonar.plpgsql.protobuf.ScanResult;
-import com.premiumminds.sonar.plpgsql.protobuf.Token;
+import com.premiumminds.sonar.postgres.protobuf.ParseResult;
+import com.premiumminds.sonar.postgres.protobuf.RawStmt;
+import com.premiumminds.sonar.postgres.protobuf.ScanResult;
+import com.premiumminds.sonar.postgres.protobuf.Token;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

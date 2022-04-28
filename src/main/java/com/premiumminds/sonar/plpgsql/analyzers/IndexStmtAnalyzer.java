@@ -1,7 +1,7 @@
 package com.premiumminds.sonar.plpgsql.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import com.premiumminds.sonar.plpgsql.protobuf.IndexStmt;
+import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;

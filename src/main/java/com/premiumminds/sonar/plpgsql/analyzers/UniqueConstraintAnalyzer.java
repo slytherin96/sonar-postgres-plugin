@@ -1,6 +1,6 @@
 package com.premiumminds.sonar.plpgsql.analyzers;
 
-import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
+import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;

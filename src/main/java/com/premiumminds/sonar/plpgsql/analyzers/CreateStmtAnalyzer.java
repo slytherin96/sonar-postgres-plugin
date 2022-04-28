@@ -1,9 +1,9 @@
 package com.premiumminds.sonar.plpgsql.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import com.premiumminds.sonar.plpgsql.protobuf.ConstrType;
-import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
-import com.premiumminds.sonar.plpgsql.protobuf.CreateStmt;
+import com.premiumminds.sonar.postgres.protobuf.ConstrType;
+import com.premiumminds.sonar.postgres.protobuf.Constraint;
+import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;

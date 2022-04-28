@@ -1,8 +1,8 @@
 package com.premiumminds.sonar.plpgsql.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import com.premiumminds.sonar.plpgsql.protobuf.ObjectType;
-import com.premiumminds.sonar.plpgsql.protobuf.RenameStmt;
+import com.premiumminds.sonar.postgres.protobuf.ObjectType;
+import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;

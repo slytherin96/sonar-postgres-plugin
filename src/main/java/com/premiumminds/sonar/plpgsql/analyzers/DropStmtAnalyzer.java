@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import com.premiumminds.sonar.plpgsql.protobuf.DropStmt;
-import com.premiumminds.sonar.plpgsql.protobuf.ObjectType;
+import com.premiumminds.sonar.postgres.protobuf.DropStmt;
+import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;

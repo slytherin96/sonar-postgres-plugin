@@ -1,13 +1,13 @@
 package com.premiumminds.sonar.plpgsql.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import com.premiumminds.sonar.plpgsql.protobuf.AlterTableCmd;
-import com.premiumminds.sonar.plpgsql.protobuf.AlterTableStmt;
-import com.premiumminds.sonar.plpgsql.protobuf.AlterTableType;
-import com.premiumminds.sonar.plpgsql.protobuf.ColumnDef;
-import com.premiumminds.sonar.plpgsql.protobuf.ConstrType;
-import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
-import com.premiumminds.sonar.plpgsql.protobuf.ObjectType;
+import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
+import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
+import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
+import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
+import com.premiumminds.sonar.postgres.protobuf.ConstrType;
+import com.premiumminds.sonar.postgres.protobuf.Constraint;
+import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
