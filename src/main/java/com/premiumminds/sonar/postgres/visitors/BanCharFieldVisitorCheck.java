@@ -5,7 +5,11 @@ import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.TypeName;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD;
+
+@Rule(key = "ban-char-field")
 public class BanCharFieldVisitorCheck extends AbstractVisitorCheck {
 
     @Override
@@ -16,7 +20,7 @@ public class BanCharFieldVisitorCheck extends AbstractVisitorCheck {
             final String str = name.getString().getStr();
             if ("bpchar".equals(str)){
                 NewIssue newIssue = getContext().newIssue()
-                        .forRule(PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD);
+                        .forRule(RULE_BAN_CHAR_FIELD);
                 NewIssueLocation primaryLocation = newIssue.newLocation()
                         .on(getFile())
                         .at(getTextRange())

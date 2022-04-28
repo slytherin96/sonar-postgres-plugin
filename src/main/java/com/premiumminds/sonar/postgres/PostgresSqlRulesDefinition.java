@@ -1,5 +1,25 @@
 package com.premiumminds.sonar.postgres;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.premiumminds.sonar.postgres.visitors.AbstractVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.AddFieldWithDefaultVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.AddForeignKeyVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.AddingSerialPrimaryKeyfieldvisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.BanCharFieldVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.BanDropDatabaseVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ChangingColumnTypeVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.PreferTextFieldVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.RenameTableVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.RobustStatementsVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.SettingNotNullVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.VisitorCheck;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -119,5 +139,24 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setMarkdownDescription(getClass().getResource("drop-constraint-drops-index.md"));
 
         repository.done();
+    }
+
+    public static List<VisitorCheck> allChecks(){
+        return Arrays.asList(
+                new BanDropDatabaseVisitorCheck(),
+                new ConcurrentVisitorCheck(),
+                new RenameColumnVisitorCheck(),
+                new RenameTableVisitorCheck(),
+                new RobustStatementsVisitorCheck(),
+                new SettingNotNullVisitorCheck(),
+                new DropConstraintDropsIndexVisitorCheck(),
+                new ChangingColumnTypeVisitorCheck(),
+                new DisallowedUniqueConstraintVisitorCheck(),
+                new AddingSerialPrimaryKeyfieldvisitorCheck(),
+                new ConstraintMissingNotValidVisitorCheck(),
+                new AddForeignKeyVisitorCheck(),
+                new AddFieldWithDefaultVisitorCheck(),
+                new BanCharFieldVisitorCheck(),
+                new PreferTextFieldVisitorCheck());
     }
 }

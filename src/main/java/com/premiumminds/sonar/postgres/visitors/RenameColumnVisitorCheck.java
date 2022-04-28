@@ -4,10 +4,12 @@ import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_COLUMN;
 import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_COLUMN;
 
+@Rule(key = "renaming-column")
 public class RenameColumnVisitorCheck extends AbstractVisitorCheck {
 
     @Override

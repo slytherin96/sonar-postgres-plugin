@@ -1,7 +1,6 @@
 package com.premiumminds.sonar.postgres;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -13,26 +12,13 @@ import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.ScanResult;
 import com.premiumminds.sonar.postgres.protobuf.ScanToken;
 import com.premiumminds.sonar.postgres.protobuf.Token;
-import com.premiumminds.sonar.postgres.visitors.AbstractVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.AddFieldWithDefaultVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.AddForeignKeyVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.AddingSerialPrimaryKeyfieldvisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.BanCharFieldVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.BanDropDatabaseVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.ChangingColumnTypeVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.PreferTextFieldVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.RenameTableVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.RobustStatementsVisitorCheck;
-import com.premiumminds.sonar.postgres.visitors.SettingNotNullVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.VisitorCheck;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -41,7 +27,16 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.REPOSITORY;
+
 public class PostgresSqlSensor implements Sensor {
+
+
+    private final CheckFactory checkFactory;
+
+    public PostgresSqlSensor(CheckFactory checkFactory) {
+        this.checkFactory = checkFactory;
+    }
 
     private static final Logger LOGGER = Loggers.get(PostgresSqlSensor.class);
 
@@ -51,7 +46,7 @@ public class PostgresSqlSensor implements Sensor {
     public void describe(SensorDescriptor descriptor) {
         descriptor.name("Analyzes issues on Postgresql script files");
         descriptor.onlyOnLanguage(PostgresSqlLanguage.KEY);
-        descriptor.createIssuesForRuleRepositories(PostgresSqlRulesDefinition.REPOSITORY);
+        descriptor.createIssuesForRuleRepositories(REPOSITORY);
     }
 
     @Override
@@ -141,9 +136,13 @@ public class PostgresSqlSensor implements Sensor {
     }
 
     private void parseTree(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets, ParseResult result) {
+        final Checks<VisitorCheck> checks = checkFactory.<VisitorCheck>create(REPOSITORY)
+                .addAnnotatedChecks(PostgresSqlRulesDefinition.allChecks());
+
         result.getStmtsList().forEach(stmt -> {
             final TextRange textRange = parseTextRange(file, contents, eolOffsets, stmt);
-            parseStatement(context, file, textRange, stmt);
+
+            checks.all().forEach(check -> check.analyze(context, file, textRange, stmt));
         });
     }
 
@@ -164,27 +163,6 @@ public class PostgresSqlSensor implements Sensor {
         final TextPointer textPointerStart = convertAbsoluteOffsetToTextPointer(file, eolOffsets, stmtLocation);
         final TextPointer textPointerEnd = convertAbsoluteOffsetToTextPointer(file, eolOffsets, stmtLocation + stmtLen);
         return file.newRange(textPointerStart, textPointerEnd);
-    }
-
-    private void parseStatement(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt){
-        final List<AbstractVisitorCheck> visitorChecks = Arrays.asList(
-                new BanDropDatabaseVisitorCheck(),
-                new ConcurrentVisitorCheck(),
-                new RenameColumnVisitorCheck(),
-                new RenameTableVisitorCheck(),
-                new RobustStatementsVisitorCheck(),
-                new SettingNotNullVisitorCheck(),
-                new DropConstraintDropsIndexVisitorCheck(),
-                new ChangingColumnTypeVisitorCheck(),
-                new DisallowedUniqueConstraintVisitorCheck(),
-                new AddingSerialPrimaryKeyfieldvisitorCheck(),
-                new ConstraintMissingNotValidVisitorCheck(),
-                new AddForeignKeyVisitorCheck(),
-                new AddFieldWithDefaultVisitorCheck(),
-                new BanCharFieldVisitorCheck(),
-                new PreferTextFieldVisitorCheck());
-
-        visitorChecks.forEach(visitorCheck -> visitorCheck.analyze(context, file, textRange, rawStmt));
     }
 
     private List<Integer> parseEolOffsets(String contents){

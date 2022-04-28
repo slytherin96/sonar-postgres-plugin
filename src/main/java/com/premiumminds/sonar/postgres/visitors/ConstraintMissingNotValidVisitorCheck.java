@@ -4,9 +4,11 @@ import com.premiumminds.sonar.postgres.protobuf.ConstrType;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 
+@Rule(key = "constraint-missing-not-valid")
 public class ConstraintMissingNotValidVisitorCheck extends AbstractVisitorCheck {
 
     @Override

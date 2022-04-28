@@ -4,10 +4,12 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
 import static com.premiumminds.sonar.postgres.protobuf.AlterTableType.AT_SetNotNull;
 
+@Rule(key = "setting-not-nullable-field")
 public class SettingNotNullVisitorCheck extends AbstractVisitorCheck {
 
     @Override

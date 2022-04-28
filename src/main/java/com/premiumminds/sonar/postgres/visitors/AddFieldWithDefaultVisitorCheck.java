@@ -5,10 +5,12 @@ import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import com.premiumminds.sonar.postgres.protobuf.Node;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ADD_FIELD_WITH_DEFAULT;
 import static com.premiumminds.sonar.postgres.protobuf.ConstrType.CONSTR_DEFAULT;
 
+@Rule(key = "adding-field-with-default")
 public class AddFieldWithDefaultVisitorCheck extends AbstractVisitorCheck {
 
     @Override

@@ -20,10 +20,12 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
 import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_INDEX;
 
+@Rule(key = "prefer-robust-stmts")
 public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
 
     @Override

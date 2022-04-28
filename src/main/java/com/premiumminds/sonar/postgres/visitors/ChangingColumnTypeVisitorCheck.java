@@ -5,9 +5,12 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.check.Rule;
 
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE;
 import static com.premiumminds.sonar.postgres.protobuf.AlterTableType.AT_AlterColumnType;
 
+@Rule(key = "changing-column-type")
 public class ChangingColumnTypeVisitorCheck extends AbstractVisitorCheck {
 
     @Override
@@ -16,7 +19,7 @@ public class ChangingColumnTypeVisitorCheck extends AbstractVisitorCheck {
         final AlterTableType subtype = alterTableCmd.getSubtype();
         if (AT_AlterColumnType.equals(subtype)){
             NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE);
+                    .forRule(RULE_CHANGING_COLUMN_TYPE);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(getFile())
                     .at(getTextRange())
