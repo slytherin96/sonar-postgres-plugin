@@ -106,6 +106,23 @@ class PlPgSqlSensorTest {
     }
 
     @Test
+    void alterIndexStatement() {
+
+        createFile(contextTester, "file1.sql", "ALTER INDEX foo RENAME TO bar;");
+
+        PlPgSqlSensor sensor = new PlPgSqlSensor();
+        sensor.execute(contextTester);
+
+        Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
+
+        assertEquals(1, issueMap.size());
+
+        assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to ALTER INDEX foo",
+                issueMap.get(":file1.sql").primaryLocation().message());
+    }
+
+    @Test
     void dropStatement() {
 
         createFile(contextTester, "file1.sql", "drop table foo, bar;");
@@ -233,13 +250,14 @@ class PlPgSqlSensorTest {
         createFile(contextTester, "file19.sql", "ALTER TABLE IF EXISTS foo RENAME TO bar;");
         createFile(contextTester, "file20.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT -1;");
         createFile(contextTester, "file21.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT random();");
+        createFile(contextTester, "file22.sql", "ALTER INDEX foo SET (fillfactor = 75);");
 
         PlPgSqlSensor sensor = new PlPgSqlSensor();
         sensor.execute(contextTester);
 
         Map<String, Issue> issueMap = getIssueFileMap(contextTester.allIssues());
 
-        assertEquals(16, issueMap.size());
+        assertEquals(17, issueMap.size());
 
         assertEquals("prefer-robust-stmts", issueMap.get(":file1.sql").ruleKey().rule());
         assertEquals("Add IF NOT EXISTS to ADD COLUMN bar", issueMap.get(":file1.sql").primaryLocation().message());
@@ -300,6 +318,9 @@ class PlPgSqlSensorTest {
         assertEquals("renaming-table", issueMap.get(":file19.sql").ruleKey().rule());
         assertEquals("Renaming a table may break existing clients that depend on the old table name.",
                 issueMap.get(":file19.sql").primaryLocation().message());
+
+        assertEquals("prefer-robust-stmts", issueMap.get(":file22.sql").ruleKey().rule());
+        assertEquals("Add IF EXISTS to ALTER INDEX foo", issueMap.get(":file22.sql").primaryLocation().message());
 
     }
 

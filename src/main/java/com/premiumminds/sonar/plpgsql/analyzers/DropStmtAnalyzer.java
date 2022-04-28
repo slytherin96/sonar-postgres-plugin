@@ -33,24 +33,24 @@ public class DropStmtAnalyzer implements Analyzer {
                 .map(x -> x.getString().getStr())
                 .collect(Collectors.toList());
 
-        String message = null;
-        final ObjectType removeType = dropStmt.getRemoveType();
-        switch (removeType){
-            case OBJECT_TABLE:
-                message = "Add IF EXISTS to DROP TABLE " + String.join(", ", names);
-                break;
-            case OBJECT_SEQUENCE:
-                message = "Add IF EXISTS to DROP SEQUENCE " + String.join(", ", names);
-                break;
-            case OBJECT_INDEX:
-                message = "Add IF EXISTS to DROP INDEX " + String.join(", ", names);
-                break;
-            default:
-                message = "Add IF EXISTS";
-                break;
-        }
-
         if(!dropStmt.getMissingOk()){
+            String message;
+            final ObjectType removeType = dropStmt.getRemoveType();
+            switch (removeType){
+                case OBJECT_TABLE:
+                    message = "Add IF EXISTS to DROP TABLE " + String.join(", ", names);
+                    break;
+                case OBJECT_SEQUENCE:
+                    message = "Add IF EXISTS to DROP SEQUENCE " + String.join(", ", names);
+                    break;
+                case OBJECT_INDEX:
+                    message = "Add IF EXISTS to DROP INDEX " + String.join(", ", names);
+                    break;
+                default:
+                    message = "Add IF EXISTS";
+                    break;
+            }
+
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()

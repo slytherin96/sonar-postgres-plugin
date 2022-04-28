@@ -20,6 +20,7 @@ public class RenameStmtAnalyzer implements Analyzer {
     @Override
     public void validate(SensorContext context, InputFile file, TextRange textRange) {
 
+        boolean createIssue;
         RuleKey rule;
         String message;
 
@@ -28,21 +29,31 @@ public class RenameStmtAnalyzer implements Analyzer {
             case OBJECT_COLUMN:
                 rule = PlPgSqlRulesDefinition.RULE_RENAMING_COLUMN;
                 message = "Renaming a column may break existing clients.";
+                createIssue = true;
                 break;
             case OBJECT_TABLE:
                 rule = PlPgSqlRulesDefinition.RULE_RENAMING_TABLE;
                 message = "Renaming a table may break existing clients that depend on the old table name.";
+                createIssue = true;
+                break;
+            case OBJECT_INDEX:
+                rule = PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
+                message = "Add IF EXISTS to ALTER INDEX " + renameStmt.getRelation().getRelname();
+                createIssue = !renameStmt.getMissingOk();
                 break;
             default:
                 return;
         }
-        NewIssue newIssue = context.newIssue()
-                .forRule(rule);
-        NewIssueLocation primaryLocation = newIssue.newLocation()
-                .on(file)
-                .at(textRange)
-                .message(message);
-        newIssue.at(primaryLocation);
-        newIssue.save();
+        if (createIssue){
+            NewIssue newIssue = context.newIssue()
+                    .forRule(rule);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(file)
+                    .at(textRange)
+                    .message(message);
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+
     }
 }

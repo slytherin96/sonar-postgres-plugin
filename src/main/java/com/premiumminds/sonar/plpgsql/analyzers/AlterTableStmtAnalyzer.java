@@ -7,6 +7,7 @@ import com.premiumminds.sonar.plpgsql.protobuf.AlterTableType;
 import com.premiumminds.sonar.plpgsql.protobuf.ColumnDef;
 import com.premiumminds.sonar.plpgsql.protobuf.ConstrType;
 import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
+import com.premiumminds.sonar.plpgsql.protobuf.ObjectType;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -26,12 +27,26 @@ public class AlterTableStmtAnalyzer implements Analyzer {
     public void validate(SensorContext context, InputFile file, TextRange textRange) {
 
         if(!alterTableStmt.getMissingOk()){
+            String message;
+            final ObjectType relkind = alterTableStmt.getRelkind();
+            switch (relkind){
+                case OBJECT_TABLE:
+                    message = "Add IF EXISTS to ALTER TABLE " + alterTableStmt.getRelation().getRelname();
+                    break;
+                case OBJECT_INDEX:
+                    message = "Add IF EXISTS to ALTER INDEX " + alterTableStmt.getRelation().getRelname();
+                    break;
+                default:
+                    message = "Add IF EXISTS";
+                    break;
+            }
+
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF EXISTS to ALTER TABLE " + alterTableStmt.getRelation().getRelname());
+                    .message(message);
             newIssue.at(primaryLocation);
             newIssue.save();
         }
