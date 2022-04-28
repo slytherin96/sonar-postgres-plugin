@@ -53,12 +53,12 @@ public class PlPgSqlSensor implements Sensor {
         for (InputFile file : files) {
 
             try {
-                final String contents = file.contents();
-                final List<Integer> eolOffsets = parseEolOffsets(contents);
+                final String unixContents = file.contents().replace("\r", "");
+                final List<Integer> eolOffsets = parseEolOffsets(unixContents);
 
-                parseContents(context, file, contents, eolOffsets);
+                parseContents(context, file, unixContents, eolOffsets);
 
-                scanContents(context, file, contents, eolOffsets);
+                scanContents(context, file, unixContents, eolOffsets);
             } catch (Exception e) {
                 LOGGER.error("problem parsing file: " + file.filename(), e);
                 throw new RuntimeException(e);
@@ -181,7 +181,7 @@ public class PlPgSqlSensor implements Sensor {
 
     private List<Integer> parseEolOffsets(String contents){
         List<Integer> eolOffsets = new ArrayList<>();
-        for (int k = 0 ; k< contents.length(); k++){
+        for (int k = 0 ; k < contents.length(); k++){
             final char c = contents.charAt(k);
             if (c == '\n'){
                 eolOffsets.add(k);
