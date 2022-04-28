@@ -1,18 +1,10 @@
 package com.premiumminds.sonar.postgres;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.premiumminds.sonar.postgres.analyzers.AlterSeqStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.AlterTableStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.StmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.CreateSeqStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.CreateStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.DropStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.DropdbStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.IndexStmtAnalyzer;
-import com.premiumminds.sonar.postgres.analyzers.RenameStmtAnalyzer;
 import com.premiumminds.sonar.postgres.libpg_query.PGQueryLibrary;
 import com.premiumminds.sonar.postgres.libpg_query.PgQueryProtobufParseResult;
 import com.premiumminds.sonar.postgres.libpg_query.PgQueryScanResult;
@@ -21,6 +13,22 @@ import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.ScanResult;
 import com.premiumminds.sonar.postgres.protobuf.ScanToken;
 import com.premiumminds.sonar.postgres.protobuf.Token;
+import com.premiumminds.sonar.postgres.visitors.AbstractVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.AddFieldWithDefaultVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.AddForeignKeyVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.AddingSerialPrimaryKeyfieldvisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.BanCharFieldVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.BanDropDatabaseVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ChangingColumnTypeVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.PreferTextFieldVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.RenameTableVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.RobustStatementsVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.SettingNotNullVisitorCheck;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
@@ -159,28 +167,24 @@ public class PostgresSqlSensor implements Sensor {
     }
 
     private void parseStatement(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt){
-        StmtAnalyzer stmtAnalyzer = null;
-        if (rawStmt.getStmt().hasCreateStmt()) {
-            stmtAnalyzer = new CreateStmtAnalyzer(rawStmt.getStmt().getCreateStmt());
-        } else if (rawStmt.getStmt().hasIndexStmt()){
-            stmtAnalyzer = new IndexStmtAnalyzer(rawStmt.getStmt().getIndexStmt());
-        } else if (rawStmt.getStmt().hasDropStmt()){
-            stmtAnalyzer = new DropStmtAnalyzer(rawStmt.getStmt().getDropStmt());
-        } else if (rawStmt.getStmt().hasDropdbStmt()){
-            stmtAnalyzer = new DropdbStmtAnalyzer(rawStmt.getStmt().getDropdbStmt());
-        } else if (rawStmt.getStmt().hasAlterTableStmt()){
-            stmtAnalyzer = new AlterTableStmtAnalyzer(rawStmt.getStmt().getAlterTableStmt());
-        } else if (rawStmt.getStmt().hasRenameStmt()){
-            stmtAnalyzer = new RenameStmtAnalyzer(rawStmt.getStmt().getRenameStmt());
-        } else if (rawStmt.getStmt().hasCreateSeqStmt()){
-            stmtAnalyzer = new CreateSeqStmtAnalyzer(rawStmt.getStmt().getCreateSeqStmt());
-        } else if (rawStmt.getStmt().hasAlterSeqStmt()){
-            stmtAnalyzer = new AlterSeqStmtAnalyzer(rawStmt.getStmt().getAlterSeqStmt());
-        }
+        final List<AbstractVisitorCheck> visitorChecks = Arrays.asList(
+                new BanDropDatabaseVisitorCheck(),
+                new ConcurrentVisitorCheck(),
+                new RenameColumnVisitorCheck(),
+                new RenameTableVisitorCheck(),
+                new RobustStatementsVisitorCheck(),
+                new SettingNotNullVisitorCheck(),
+                new DropConstraintDropsIndexVisitorCheck(),
+                new ChangingColumnTypeVisitorCheck(),
+                new DisallowedUniqueConstraintVisitorCheck(),
+                new AddingSerialPrimaryKeyfieldvisitorCheck(),
+                new ConstraintMissingNotValidVisitorCheck(),
+                new AddForeignKeyVisitorCheck(),
+                new AddFieldWithDefaultVisitorCheck(),
+                new BanCharFieldVisitorCheck(),
+                new PreferTextFieldVisitorCheck());
 
-        if (stmtAnalyzer != null) {
-            stmtAnalyzer.validate(context, file, textRange);
-        }
+        visitorChecks.forEach(visitorCheck -> visitorCheck.analyze(context, file, textRange, rawStmt));
     }
 
     private List<Integer> parseEolOffsets(String contents){

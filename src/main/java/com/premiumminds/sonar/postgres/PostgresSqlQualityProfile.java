@@ -12,7 +12,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CH
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONCURRENTLY;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
-import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_INDEX_DROPS_INDEX;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_CONSTRAINT_DROPS_INDEX;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
@@ -43,7 +43,7 @@ public class PostgresSqlQualityProfile implements BuiltInQualityProfilesDefiniti
         activateRule(profile, RULE_RENAMING_COLUMN);
         activateRule(profile, RULE_RENAMING_TABLE);
         activateRule(profile, RULE_IDENTIFIER_MAX_LENGTH);
-        activateRule(profile, RULE_DROP_INDEX_DROPS_INDEX);
+        activateRule(profile, RULE_DROP_CONSTRAINT_DROPS_INDEX);
 
         profile.done();
     }
