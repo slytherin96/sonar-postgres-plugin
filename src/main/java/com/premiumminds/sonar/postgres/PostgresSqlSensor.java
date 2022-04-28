@@ -52,6 +52,10 @@ public class PostgresSqlSensor implements Sensor {
         Iterable<InputFile> files = fs.inputFiles(fs.predicates().hasLanguage(PostgresSqlLanguage.KEY));
         for (InputFile file : files) {
 
+            if (context.isCancelled()) {
+                throw new RuntimeException("Analysis cancelled");
+            }
+
             try {
                 final String unixContents = file.contents().replace("\r", "");
                 final List<Integer> eolOffsets = parseEolOffsets(unixContents);
