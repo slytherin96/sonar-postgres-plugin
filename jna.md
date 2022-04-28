@@ -1,7 +1,7 @@
 
 # Generate Java sources
 
-[jnaerator](https://github.com/nativelibs4java/JNAerator) was used to manually generate Java sources from C headers. 
+[jnaerator](https://github.com/nativelibs4java/JNAerator) was used to manually generate [JNA](https://github.com/java-native-access/jna) Java sources from C headers. 
 
 ```shell
 git clone http://github.com/nativelibs4java/JNAerator.git
