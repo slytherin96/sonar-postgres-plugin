@@ -142,6 +142,15 @@ public class AlterTableStmtAnalyzer implements Analyzer {
             newIssue.at(primaryLocation);
             newIssue.save();
         }
+
+        NewIssue newIssue = context.newIssue()
+                .forRule(PlPgSqlRulesDefinition.RULE_DROP_INDEX_DROPS_INDEX);
+        NewIssueLocation primaryLocation = newIssue.newLocation()
+                .on(file)
+                .at(textRange)
+                .message("Dropping a primary or unique constraint also drops any index underlying the constraint");
+        newIssue.at(primaryLocation);
+        newIssue.save();
     }
 
     private void alterColumnType(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {

@@ -25,6 +25,7 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_RENAMING_COLUMN = RuleKey.of(REPOSITORY, "renaming-column");
     public static final RuleKey RULE_RENAMING_TABLE = RuleKey.of(REPOSITORY, "renaming-table");
     public static final RuleKey RULE_IDENTIFIER_MAX_LENGTH = RuleKey.of(REPOSITORY, "identifier-max-length");
+    public static final RuleKey RULE_DROP_INDEX_DROPS_INDEX = RuleKey.of(REPOSITORY, "drop-constraint-drops-index");
 
     @Override
     public void define(Context context) {
@@ -111,6 +112,11 @@ public class PlPgSqlRulesDefinition implements RulesDefinition {
                 .setName("identifier-max-length rule")
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("identifier-max-length.md"));
+
+        repository.createRule(RULE_DROP_INDEX_DROPS_INDEX.rule())
+                .setName("drop-constraint-drops-index rule")
+                .setType(RuleType.BUG)
+                .setMarkdownDescription(getClass().getResource("drop-constraint-drops-index.md"));
 
         repository.done();
     }
