@@ -1,35 +1,43 @@
-package com.premiumminds.sonar.plpgsql.rules;
+package com.premiumminds.sonar.plpgsql.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import jakarta.json.JsonObject;
+import com.premiumminds.sonar.plpgsql.protobuf.IndexStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class DropStmt implements Stmt {
+public class IndexStmtAnalyzer implements Analyzer {
+
+    private final IndexStmt indexStmt;
+
+    public IndexStmtAnalyzer(IndexStmt indexStmt) {
+
+        this.indexStmt = indexStmt;
+    }
 
     @Override
-    public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject) {
-        if(!jsonObject.getBoolean("missing_ok", false)){
+    public void validate(SensorContext context, InputFile file, TextRange textRange) {
+
+        if (!indexStmt.getIfNotExists()){
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add IF NOT EXISTS");
+                    .message("Add IF NOT EXISTS to CREATE INDEX " + indexStmt.getIdxname());
             newIssue.at(primaryLocation);
             newIssue.save();
         }
-        final String removeType = jsonObject.getString("removeType");
-        if ("OBJECT_INDEX".equals(removeType) && !jsonObject.getBoolean("concurrent", false)){
+
+        if (!indexStmt.getConcurrent()){
             NewIssue newIssue = context.newIssue()
                     .forRule(PlPgSqlRulesDefinition.RULE_CONCURRENTLY);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(file)
                     .at(textRange)
-                    .message("Add CONCURRENTLY");
+                    .message("Add CONCURRENTLY to CREATE INDEX " + indexStmt.getIdxname());
             newIssue.at(primaryLocation);
             newIssue.save();
         }

@@ -1,6 +1,6 @@
-package com.premiumminds.sonar.plpgsql.rules;
+package com.premiumminds.sonar.plpgsql.analyzers;
 
-import jakarta.json.JsonObject;
+import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -9,12 +9,11 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
 
-public class PrimaryKeyConstraint implements Constraint {
+public class PrimaryKeyConstraintAnalyzer implements ConstraintAnalyzer {
 
     @Override
-    public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject constraintJson) {
-
-        if (!constraintJson.containsKey("indexname")){
+    public void validate(SensorContext context, InputFile file, TextRange textRange, Constraint constraint) {
+        if (constraint.getIndexname().isEmpty()){
             NewIssue newIssue = context.newIssue()
                     .forRule(RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD);
             NewIssueLocation primaryLocation = newIssue.newLocation()
@@ -24,6 +23,5 @@ public class PrimaryKeyConstraint implements Constraint {
             newIssue.at(primaryLocation);
             newIssue.save();
         }
-
     }
 }

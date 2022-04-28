@@ -1,38 +1,24 @@
 package com.premiumminds.sonar.plpgsql;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.premiumminds.sonar.plpgsql.analyzers.AlterTableStmtAnalyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.Analyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.CreateStmtAnalyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.DropStmtAnalyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.DropdbStmtAnalyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.IndexStmtAnalyzer;
+import com.premiumminds.sonar.plpgsql.analyzers.RenameStmtAnalyzer;
 import com.premiumminds.sonar.plpgsql.libpg_query.PGQueryLibrary;
-import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryParseResult;
+import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryProtobufParseResult;
 import com.premiumminds.sonar.plpgsql.libpg_query.PgQueryScanResult;
+import com.premiumminds.sonar.plpgsql.protobuf.ParseResult;
+import com.premiumminds.sonar.plpgsql.protobuf.RawStmt;
 import com.premiumminds.sonar.plpgsql.protobuf.ScanResult;
 import com.premiumminds.sonar.plpgsql.protobuf.ScanToken;
 import com.premiumminds.sonar.plpgsql.protobuf.Token;
-import com.premiumminds.sonar.plpgsql.rules.AlterSeqStmt;
-import com.premiumminds.sonar.plpgsql.rules.AlterTableStmt;
-import com.premiumminds.sonar.plpgsql.rules.CommentStmt;
-import com.premiumminds.sonar.plpgsql.rules.CreateExtensionStmt;
-import com.premiumminds.sonar.plpgsql.rules.CreateSeqStmt;
-import com.premiumminds.sonar.plpgsql.rules.CreateStmt;
-import com.premiumminds.sonar.plpgsql.rules.CreateTableAsStmt;
-import com.premiumminds.sonar.plpgsql.rules.DoStmt;
-import com.premiumminds.sonar.plpgsql.rules.DropStmt;
-import com.premiumminds.sonar.plpgsql.rules.DropdbStmt;
-import com.premiumminds.sonar.plpgsql.rules.IndexStmt;
-import com.premiumminds.sonar.plpgsql.rules.InsertStmt;
-import com.premiumminds.sonar.plpgsql.rules.RenameStmt;
-import com.premiumminds.sonar.plpgsql.rules.SelectStmt;
-import com.premiumminds.sonar.plpgsql.rules.Stmt;
-import com.premiumminds.sonar.plpgsql.rules.UpdateStmt;
-import com.premiumminds.sonar.plpgsql.rules.VariableSetStmt;
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
@@ -113,8 +99,8 @@ public class PlPgSqlSensor implements Sensor {
         PGQueryLibrary.INSTANCE.pg_query_free_scan_result(result);
     }
 
-    private void parseContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) {
-        final PgQueryParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse(contents);
+    private void parseContents(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets) throws InvalidProtocolBufferException {
+        final PgQueryProtobufParseResult.ByValue result = PGQueryLibrary.INSTANCE.pg_query_parse_protobuf(contents);
         if (result.error != null){
             LOGGER.error("problem with file " + file.filename() + " at " + result.error.cursorpos + ": " + result.error.message.getString(0));
 
@@ -128,32 +114,23 @@ public class PlPgSqlSensor implements Sensor {
             newIssue.at(primaryLocation);
             newIssue.save();
 
-            PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
+            PGQueryLibrary.INSTANCE.pg_query_free_protobuf_parse_result(result);
 
             return;
         }
 
-        parseTree(context, file, contents, eolOffsets, result.parse_tree.getString(0));
+        final ParseResult parseResult = ParseResult.parseFrom(result.parse_tree.data.getByteArray(0, result.parse_tree.len));
 
-        PGQueryLibrary.INSTANCE.pg_query_free_parse_result(result);
+        parseTree(context, file, contents, eolOffsets, parseResult);
+
+        PGQueryLibrary.INSTANCE.pg_query_free_protobuf_parse_result(result);
     }
 
-    private void parseTree(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets, String result) {
-        try (StringReader reader = new StringReader(result)) {
-            try (JsonReader jsonReader = Json.createReader(reader)) {
-                final JsonObject jsonObject = jsonReader.readObject();
-
-                final JsonArray stmts = jsonObject.getJsonArray("stmts");
-                stmts.forEach(jv -> {
-                    final JsonObject jo = jv.asJsonObject();
-                    final JsonObject stmt = jo.getJsonObject("stmt");
-
-                    final TextRange textRange = parseTextRange(file, contents, eolOffsets, jo);
-
-                    parseStatement(context, file, textRange, stmt);
-                });
-            }
-        }
+    private void parseTree(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets, ParseResult result) {
+        result.getStmtsList().forEach(stmt -> {
+            final TextRange textRange = parseTextRange(file, contents, eolOffsets, stmt);
+            parseStatement(context, file, textRange, stmt);
+        });
     }
 
     private TextRange parseTextRange(InputFile file, List<Integer> eolOffsets, ScanToken st) {
@@ -162,11 +139,11 @@ public class PlPgSqlSensor implements Sensor {
         return file.newRange(textPointerStart, textPointerEnd);
     }
 
-    private TextRange parseTextRange(InputFile file, String contents, List<Integer> eolOffsets, JsonObject jo) {
-        final int stmtLocation = jo.getInt("stmt_location", 0);
+    private TextRange parseTextRange(InputFile file, String contents, List<Integer> eolOffsets, RawStmt stmt) {
+        final int stmtLocation = stmt.getStmtLocation();
         final int stmtLen;
-        if (jo.containsKey("stmt_len")) {
-            stmtLen = jo.getInt("stmt_len");
+        if (stmt.getStmtLen() != 0) {
+            stmtLen = stmt.getStmtLen();
         } else {
             stmtLen = contents.length() - stmtLocation - 1;
         }
@@ -175,65 +152,27 @@ public class PlPgSqlSensor implements Sensor {
         return file.newRange(textPointerStart, textPointerEnd);
     }
 
-    private void parseStatement(SensorContext context, InputFile file, TextRange textRange, JsonObject jsonObject){
-        jsonObject.forEach((key, value) -> {
-            Stmt stmt;
-            switch (key) {
-                case "CreateStmt":
-                    stmt = new CreateStmt();
-                    break;
-                case "IndexStmt":
-                    stmt = new IndexStmt();
-                    break;
-                case "DropStmt":
-                    stmt = new DropStmt();
-                    break;
-                case "DropdbStmt":
-                    stmt = new DropdbStmt();
-                    break;
-                case "AlterTableStmt":
-                    stmt = new AlterTableStmt();
-                    break;
-                case "RenameStmt":
-                    stmt = new RenameStmt();
-                    break;
-                case "InsertStmt":
-                    stmt = new InsertStmt();
-                    break;
-                case "DoStmt":
-                    stmt = new DoStmt();
-                    break;
-                case "SelectStmt":
-                    stmt = new SelectStmt();
-                    break;
-                case "CreateSeqStmt":
-                    stmt = new CreateSeqStmt();
-                    break;
-                case "AlterSeqStmt":
-                    stmt = new AlterSeqStmt();
-                    break;
-                case "UpdateStmt":
-                    stmt = new UpdateStmt();
-                    break;
-                case "VariableSetStmt":
-                    stmt = new VariableSetStmt();
-                    break;
-                case "CreateExtensionStmt":
-                    stmt = new CreateExtensionStmt();
-                    break;
-                case "CommentStmt":
-                    stmt = new CommentStmt();
-                    break;
-                case "CreateTableAsStmt":
-                    stmt = new CreateTableAsStmt();
-                    break;
-                default:
-                    LOGGER.warn(key + " not defined");
-                    return;
-            }
-            stmt.validate(context, file, textRange, value.asJsonObject());
-        });
+    private void parseStatement(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt){
+        Analyzer analyzer = null;
+        if (rawStmt.getStmt().hasCreateStmt()) {
+            analyzer = new CreateStmtAnalyzer(rawStmt.getStmt().getCreateStmt());
+        } else if (rawStmt.getStmt().hasIndexStmt()){
+            analyzer = new IndexStmtAnalyzer(rawStmt.getStmt().getIndexStmt());
+        } else if (rawStmt.getStmt().hasDropStmt()){
+            analyzer = new DropStmtAnalyzer(rawStmt.getStmt().getDropStmt());
+        } else if (rawStmt.getStmt().hasDropdbStmt()){
+            analyzer = new DropdbStmtAnalyzer(rawStmt.getStmt().getDropdbStmt());
+        } else if (rawStmt.getStmt().hasAlterTableStmt()){
+            analyzer = new AlterTableStmtAnalyzer(rawStmt.getStmt().getAlterTableStmt());
+        } else if (rawStmt.getStmt().hasRenameStmt()){
+            analyzer = new RenameStmtAnalyzer(rawStmt.getStmt().getRenameStmt());
+        }
+
+        if (analyzer != null) {
+            analyzer.validate(context, file, textRange);
+        }
     }
+
     private List<Integer> parseEolOffsets(String contents){
         List<Integer> eolOffsets = new ArrayList<>();
         for (int k = 0 ; k< contents.length(); k++){

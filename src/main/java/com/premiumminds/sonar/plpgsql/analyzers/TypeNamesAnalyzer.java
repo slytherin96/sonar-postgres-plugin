@@ -1,23 +1,22 @@
-package com.premiumminds.sonar.plpgsql.rules;
+package com.premiumminds.sonar.plpgsql.analyzers;
 
 import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonString;
+import com.premiumminds.sonar.plpgsql.protobuf.ColumnDef;
+import com.premiumminds.sonar.plpgsql.protobuf.TypeName;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-public class TypeNames {
+public class TypeNamesAnalyzer {
 
-    void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject columnDef){
-        final JsonObject typeName = columnDef.getJsonObject("typeName");
-        final JsonArray names = typeName.getJsonArray("names");
-        names.forEach(x -> {
-            final JsonString str = x.asJsonObject().getJsonObject("String").getJsonString("str");
-            if (str != null && "bpchar".equals(str.getString())){
+    void validate(SensorContext context, InputFile file, TextRange textRange, ColumnDef columnDef){
+
+        final TypeName typeName = columnDef.getTypeName();
+        typeName.getNamesList().forEach(name -> {
+            final String str = name.getString().getStr();
+            if ("bpchar".equals(str)){
                 NewIssue newIssue = context.newIssue()
                         .forRule(PlPgSqlRulesDefinition.RULE_BAN_CHAR_FIELD);
                 NewIssueLocation primaryLocation = newIssue.newLocation()
@@ -27,7 +26,7 @@ public class TypeNames {
                 newIssue.at(primaryLocation);
                 newIssue.save();
             }
-            if (str != null && "varchar".equals(str.getString()) && typeName.containsKey("typmods")){
+            if ("varchar".equals(str) && typeName.getTypmodsList().size() != 0){
                 NewIssue newIssue = context.newIssue()
                         .forRule(PlPgSqlRulesDefinition.RULE_PREFER_TEXT_FIELD);
                 NewIssueLocation primaryLocation = newIssue.newLocation()

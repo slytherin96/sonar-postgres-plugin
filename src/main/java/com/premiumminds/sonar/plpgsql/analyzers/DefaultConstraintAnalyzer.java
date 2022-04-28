@@ -1,6 +1,7 @@
-package com.premiumminds.sonar.plpgsql.rules;
+package com.premiumminds.sonar.plpgsql.analyzers;
 
-import jakarta.json.JsonObject;
+import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
+import com.premiumminds.sonar.plpgsql.protobuf.Node;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -9,12 +10,12 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_ADD_FIELD_WITH_DEFAULT;
 
-public class DefaultConstraint implements Constraint {
+public class DefaultConstraintAnalyzer implements ConstraintAnalyzer {
 
     @Override
-    public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject constraintJson) {
-        final JsonObject rawExpr = constraintJson.getJsonObject("raw_expr");
-        if (rawExpr.containsKey("FuncCall")){
+    public void validate(SensorContext context, InputFile file, TextRange textRange, Constraint constraint) {
+        final Node rawExpr = constraint.getRawExpr();
+        if (rawExpr.hasFuncCall()){
             NewIssue newIssue = context.newIssue()
                     .forRule(RULE_ADD_FIELD_WITH_DEFAULT);
             NewIssueLocation primaryLocation = newIssue.newLocation()
@@ -24,6 +25,5 @@ public class DefaultConstraint implements Constraint {
             newIssue.at(primaryLocation);
             newIssue.save();
         }
-
     }
 }

@@ -1,0 +1,30 @@
+package com.premiumminds.sonar.plpgsql.analyzers;
+
+import com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition;
+import com.premiumminds.sonar.plpgsql.protobuf.DropdbStmt;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+
+public class DropdbStmtAnalyzer implements Analyzer {
+
+    private final DropdbStmt dropdbStmt;
+
+    public DropdbStmtAnalyzer(DropdbStmt dropdbStmt) {
+        this.dropdbStmt = dropdbStmt;
+    }
+
+    @Override
+    public void validate(SensorContext context, InputFile file, TextRange textRange) {
+        NewIssue newIssue = context.newIssue()
+                .forRule(PlPgSqlRulesDefinition.RULE_BAN_DROP_DATABASE);
+        NewIssueLocation primaryLocation = newIssue.newLocation()
+                .on(file)
+                .at(textRange)
+                .message("Dropping a database may break existing clients.");
+        newIssue.at(primaryLocation);
+        newIssue.save();
+    }
+}

@@ -1,6 +1,6 @@
-package com.premiumminds.sonar.plpgsql.rules;
+package com.premiumminds.sonar.plpgsql.analyzers;
 
-import jakarta.json.JsonObject;
+import com.premiumminds.sonar.plpgsql.protobuf.Constraint;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -9,14 +9,11 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
 import static com.premiumminds.sonar.plpgsql.PlPgSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 
-public class CheckContraint implements Constraint {
+public class CheckContraintAnalyzer implements ConstraintAnalyzer {
 
     @Override
-    public void validate(SensorContext context, InputFile file, TextRange textRange, JsonObject constraintJson) {
-
-        final boolean initially_valid = constraintJson.getBoolean("initially_valid", false);
-        final boolean skip_validation = constraintJson.getBoolean("skip_validation", false);
-        if (initially_valid && !skip_validation){
+    public void validate(SensorContext context, InputFile file, TextRange textRange, Constraint constraint) {
+        if (constraint.getInitiallyValid() && !constraint.getSkipValidation()){
             NewIssue newIssue = context.newIssue()
                     .forRule(RULE_CONSTRAINT_MISSING_NOT_VALID);
             NewIssueLocation primaryLocation = newIssue.newLocation()
@@ -26,6 +23,5 @@ public class CheckContraint implements Constraint {
             newIssue.at(primaryLocation);
             newIssue.save();
         }
-
     }
 }
