@@ -24,6 +24,7 @@ import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
 import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_INDEX;
+import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_VIEW;
 
 @Rule(key = "prefer-robust-stmts")
 public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
@@ -51,6 +52,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_INDEX:
                     message = "Add IF EXISTS to DROP INDEX " + String.join(", ", names);
+                    break;
+                case OBJECT_VIEW:
+                    message = "Add IF EXISTS to DROP VIEW " + String.join(", ", names);
                     break;
                 default:
                     message = "Add IF EXISTS";
@@ -80,6 +84,17 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     .on(getFile())
                     .at(getTextRange())
                     .message("Add IF EXISTS to ALTER INDEX " + renameStmt.getRelation().getRelname());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+
+        if (renameType.equals(OBJECT_VIEW) && !renameStmt.getMissingOk()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF EXISTS to ALTER VIEW " + renameStmt.getRelation().getRelname());
             newIssue.at(primaryLocation);
             newIssue.save();
         }

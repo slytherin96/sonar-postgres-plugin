@@ -92,6 +92,16 @@ ALTER SEQUENCE foo RESTART WITH 105;
 ALTER SEQUENCE IF EXISTS foo RESTART WITH 105;
 ``
 
+=== alter view
+
+``sql
+-- instead of:
+ALTER VIEW foo RENAME TO bar;
+
+-- use:
+ALTER VIEW IF EXISTS foo RENAME TO bar;
+``
+
 === remove table
 
 ``sql
@@ -140,4 +150,14 @@ DROP SEQUENCE foo;
 
 -- use:
 DROP SEQUENCE IF EXISTS foo;
+``
+
+=== drop view
+
+``sql
+-- instead of:
+DROP VIEW foo;
+
+-- use:
+DROP VIEW IF EXISTS foo;
 ``
