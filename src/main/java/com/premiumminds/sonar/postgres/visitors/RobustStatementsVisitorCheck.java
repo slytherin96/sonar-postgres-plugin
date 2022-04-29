@@ -9,6 +9,7 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
+import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
@@ -40,6 +41,11 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                 .map(x -> x.getString().getStr())
                 .collect(Collectors.toList());
 
+        final List<String> schemas = dropStmt.getObjectsList()
+                .stream()
+                .map(y -> y.getString().getStr())
+                .collect(Collectors.toList());
+
         if(!dropStmt.getMissingOk()){
             String message;
             final ObjectType removeType = dropStmt.getRemoveType();
@@ -55,6 +61,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_VIEW:
                     message = "Add IF EXISTS to DROP VIEW " + String.join(", ", names);
+                    break;
+                case OBJECT_SCHEMA:
+                    message = "Add IF EXISTS to DROP SCHEMA " + String.join(", ", schemas);
                     break;
                 default:
                     message = "Add IF EXISTS";
@@ -162,6 +171,21 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue.save();
         }
         super.visit(createStmt);
+    }
+
+    @Override
+    public void visit(CreateSchemaStmt createSchemaStmt) {
+        if (!createSchemaStmt.getIfNotExists()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF NOT EXISTS to CREATE SCHEMA " + createSchemaStmt.getSchemaname());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+        super.visit(createSchemaStmt);
     }
 
     @Override

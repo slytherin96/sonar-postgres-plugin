@@ -112,7 +112,9 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file12.sql", "ALTER TABLE IF EXISTS foo DROP CONSTRAINT bar_constraint;");
         createFile(contextTester, "file13.sql", "ALTER INDEX foo SET (fillfactor = 75);");
         createFile(contextTester, "file14.sql", "ALTER VIEW foo RENAME TO bar;");
-        createFile(contextTester, "file15.sql", "DROP VIEW foo;");
+        createFile(contextTester, "file15.sql", "DROP VIEW foo, bar;");
+        createFile(contextTester, "file16.sql", "CREATE SCHEMA foo;");
+        createFile(contextTester, "file17.sql", "DROP SCHEMA foo, bar;");
 
         final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -164,10 +166,16 @@ class PostgresSqlSensorTest {
         assertEquals("Add IF EXISTS to ALTER VIEW foo",
                 fileMap.get(":file14.sql").primaryLocation().message());
 
-        assertEquals("Add IF EXISTS to DROP VIEW foo",
+        assertEquals("Add IF EXISTS to DROP VIEW foo, bar",
                 fileMap.get(":file15.sql").primaryLocation().message());
 
-        assertEquals(15, fileMap.size());
+        assertEquals("Add IF NOT EXISTS to CREATE SCHEMA foo",
+                fileMap.get(":file16.sql").primaryLocation().message());
+
+        assertEquals("Add IF EXISTS to DROP SCHEMA foo, bar",
+                fileMap.get(":file17.sql").primaryLocation().message());
+
+        assertEquals(17, fileMap.size());
     }
 
     @Test

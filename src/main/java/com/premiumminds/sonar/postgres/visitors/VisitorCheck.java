@@ -5,6 +5,7 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
+import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
@@ -26,6 +27,7 @@ public interface VisitorCheck {
     void visit(DropdbStmt dropdbStmt);
     void visit(IndexStmt indexStmt);
     void visit(CreateStmt createStmt);
+    void visit(CreateSchemaStmt createSchemaStmt);
     void visit(AlterTableCmd alterTableCmd);
     void visitCreateTableColumnConstraint(Constraint constraint);
     void visitCreateTableTableConstraint(Constraint constraint);

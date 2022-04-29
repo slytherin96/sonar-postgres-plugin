@@ -82,6 +82,16 @@ CREATE SEQUENCE foo START 101;
 CREATE SEQUENCE IF NOT EXISTS foo START 101;
 ``
 
+=== add schema
+
+``sql
+-- instead of:
+CREATE SCHEMA foo;
+
+-- use:
+CREATE SCHEMA IF NOT EXISTS foo;
+``
+
 === alter sequence
 
 ``sql
@@ -160,4 +170,14 @@ DROP VIEW foo;
 
 -- use:
 DROP VIEW IF EXISTS foo;
+``
+
+=== drop schema
+
+``sql
+-- instead of:
+DROP SCHEMA foo;
+
+-- use:
+DROP SCHEMA IF EXISTS foo;
 ``
