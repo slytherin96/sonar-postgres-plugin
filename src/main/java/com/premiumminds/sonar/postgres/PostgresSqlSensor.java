@@ -137,7 +137,7 @@ public class PostgresSqlSensor implements Sensor {
 
     private void parseTree(SensorContext context, InputFile file, String contents, List<Integer> eolOffsets, ParseResult result) {
         final Checks<VisitorCheck> checks = checkFactory.<VisitorCheck>create(REPOSITORY)
-                .addAnnotatedChecks(PostgresSqlRulesDefinition.allChecks());
+                .addAnnotatedChecks((Iterable) PostgresSqlRulesDefinition.allChecks());
 
         result.getStmtsList().forEach(stmt -> {
             final TextRange textRange = parseTextRange(file, contents, eolOffsets, stmt);
