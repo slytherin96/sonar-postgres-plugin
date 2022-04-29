@@ -92,6 +92,16 @@ CREATE SCHEMA foo;
 CREATE SCHEMA IF NOT EXISTS foo;
 ``
 
+=== add materialized view
+
+``sql
+-- instead of:
+CREATE MATERIALIZED VIEW foo AS SELECT 1;
+
+-- use:
+CREATE MATERIALIZED VIEW IF NOT EXISTS foo AS SELECT 1;
+``
+
 === alter sequence
 
 ``sql
@@ -110,6 +120,16 @@ ALTER VIEW foo RENAME TO bar;
 
 -- use:
 ALTER VIEW IF EXISTS foo RENAME TO bar;
+``
+
+=== alter materialized view
+
+``sql
+-- instead of:
+ALTER MATERIALIZED VIEW foo RENAME TO bar;
+
+-- use:
+ALTER MATERIALIZED VIEW IF EXISTS foo RENAME TO bar;
 ``
 
 === remove table
@@ -178,6 +198,16 @@ DROP VIEW foo;
 
 -- use:
 DROP VIEW IF EXISTS foo;
+``
+
+=== drop materialized view
+
+``sql
+-- instead of:
+DROP MATERIALIZED VIEW foo;
+
+-- use:
+DROP MATERIALIZED VIEW IF EXISTS foo;
 ``
 
 === drop schema

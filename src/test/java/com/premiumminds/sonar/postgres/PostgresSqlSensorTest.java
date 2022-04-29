@@ -117,6 +117,9 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file17.sql", "DROP SCHEMA foo, bar;");
         createFile(contextTester, "file18.sql", "DROP DOMAIN foo, bar;");
         createFile(contextTester, "file19.sql", "ALTER DOMAIN foo DROP CONSTRAINT bar;");
+        createFile(contextTester, "file20.sql", "CREATE MATERIALIZED VIEW foo AS SELECT 1;");
+        createFile(contextTester, "file21.sql", "DROP MATERIALIZED VIEW foo, bar;");
+        createFile(contextTester, "file22.sql", "ALTER MATERIALIZED VIEW foo RENAME TO bar;");
 
         final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -183,7 +186,16 @@ class PostgresSqlSensorTest {
         assertEquals("Add IF EXISTS to DROP CONSTRAINT bar",
                 fileMap.get(":file19.sql").primaryLocation().message());
 
-        assertEquals(19, fileMap.size());
+        assertEquals("Add IF NOT EXISTS to CREATE MATERIALIZED VIEW foo",
+                fileMap.get(":file20.sql").primaryLocation().message());
+
+        assertEquals("Add IF EXISTS to DROP MATERIALIZED VIEW foo, bar",
+                fileMap.get(":file21.sql").primaryLocation().message());
+
+        assertEquals("Add IF EXISTS to ALTER MATERIALIZED VIEW foo",
+                fileMap.get(":file22.sql").primaryLocation().message());
+
+        assertEquals(22, fileMap.size());
     }
 
     @Test

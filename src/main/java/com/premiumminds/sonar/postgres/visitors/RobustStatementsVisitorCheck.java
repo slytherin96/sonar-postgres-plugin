@@ -13,6 +13,7 @@ import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
+import com.premiumminds.sonar.postgres.protobuf.CreateTableAsStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;
@@ -26,6 +27,7 @@ import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
 import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_INDEX;
+import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_MATVIEW;
 import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_VIEW;
 
 @Rule(key = "prefer-robust-stmts")
@@ -77,6 +79,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                 case OBJECT_DOMAIN:
                     message = "Add IF EXISTS to DROP DOMAIN " + String.join(", ", domains);
                     break;
+                case OBJECT_MATVIEW:
+                    message = "Add IF EXISTS to DROP MATERIALIZED VIEW " + String.join(", ", names);
+                    break;
                 default:
                     message = "Add IF EXISTS";
                     break;
@@ -116,6 +121,17 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     .on(getFile())
                     .at(getTextRange())
                     .message("Add IF EXISTS to ALTER VIEW " + renameStmt.getRelation().getRelname());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+
+        if (renameType.equals(OBJECT_MATVIEW) && !renameStmt.getMissingOk()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF EXISTS to ALTER MATERIALIZED VIEW " + renameStmt.getRelation().getRelname());
             newIssue.at(primaryLocation);
             newIssue.save();
         }
@@ -168,6 +184,22 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue.save();
         }
         super.visit(createSeqStmt);
+    }
+
+    @Override
+    public void visit(CreateTableAsStmt createTableAsStmt) {
+        if (!createTableAsStmt.getIfNotExists()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF NOT EXISTS to CREATE MATERIALIZED VIEW " + createTableAsStmt.getInto().getRel().getRelname());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+
+        super.visit(createTableAsStmt);
     }
 
     @Override
