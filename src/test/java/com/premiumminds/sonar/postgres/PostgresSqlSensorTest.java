@@ -14,6 +14,7 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.IIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
@@ -51,16 +52,18 @@ class PostgresSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "not valid sql;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_PARSE_ERROR);
+        final RuleKey rule = RULE_PARSE_ERROR;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
         assertEquals("Failure to parse statement",
-                issueMap.get(":file1.sql").get("parse-error").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -73,24 +76,24 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file3.sql",
                 "create index concurrently if not exists a23456789_123456789_123456789_123456789_123456789_123456789_123456789_ on foo (id);");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_IDENTIFIER_MAX_LENGTH);
+        final RuleKey rule = RULE_IDENTIFIER_MAX_LENGTH;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(3, issueMap.size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
         assertEquals("Identifier 'a23456789_123456789_123456789_123456789_123456789_123456789_123456789_' length (70) is bigger than default maximum for Postgresql 63",
-                issueMap.get(":file1.sql").get("identifier-max-length").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file2.sql").size());
         assertEquals("Identifier 'a23456789_123456789_123456789_123456789_123456789_123456789_123456789_' length (70) is bigger than default maximum for Postgresql 63",
-                issueMap.get(":file2.sql").get("identifier-max-length").primaryLocation().message());
+                fileMap.get(":file2.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file3.sql").size());
         assertEquals("Identifier 'a23456789_123456789_123456789_123456789_123456789_123456789_123456789_' length (70) is bigger than default maximum for Postgresql 63",
-                issueMap.get(":file3.sql").get("identifier-max-length").primaryLocation().message());
+                fileMap.get(":file3.sql").primaryLocation().message());
+
+        assertEquals(3, fileMap.size());
     }
 
     @Test
@@ -109,80 +112,72 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file12.sql", "ALTER TABLE IF EXISTS foo DROP CONSTRAINT bar_constraint;");
         createFile(contextTester, "file13.sql", "ALTER INDEX foo SET (fillfactor = 75);");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_PREFER_ROBUST_STMTS);
+        final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Add IF NOT EXISTS to CREATE SEQUENCE foo",
-                issueMap.get(":file1.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file2.sql").size());
         assertEquals("Add IF EXISTS to ALTER SEQUENCE foo",
-                issueMap.get(":file2.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file2.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file3.sql").size());
         assertEquals("Add IF EXISTS to ALTER INDEX foo",
-                issueMap.get(":file3.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file3.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file4.sql").size());
         assertEquals("Add IF EXISTS to DROP TABLE foo, bar",
-                issueMap.get(":file4.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file4.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file5.sql").size());
         assertEquals("Add IF EXISTS to DROP INDEX idx1",
-                issueMap.get(":file5.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file5.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file6.sql").size());
         assertEquals("Add IF EXISTS to DROP SEQUENCE foo, bar",
-                issueMap.get(":file6.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file6.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file7.sql").size());
         assertEquals("Add IF NOT EXISTS to CREATE TABLE foo",
-                issueMap.get(":file7.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file7.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file8.sql").size());
         assertEquals("Add IF NOT EXISTS to CREATE INDEX idx1",
-                issueMap.get(":file8.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file8.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file9.sql").size());
         assertEquals("Add IF NOT EXISTS to ADD COLUMN bar",
-                issueMap.get(":file9.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file9.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file10.sql").size());
         assertEquals("Add IF EXISTS to DROP COLUMN bar",
-                issueMap.get(":file10.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file10.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file11.sql").size());
         assertEquals("Add IF EXISTS to ALTER TABLE foo",
-                issueMap.get(":file11.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file11.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file12.sql").size());
         assertEquals("Add IF EXISTS to DROP CONSTRAINT bar_constraint",
-                issueMap.get(":file12.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file12.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file13.sql").size());
         assertEquals("Add IF EXISTS to ALTER INDEX foo",
-                issueMap.get(":file13.sql").get("prefer-robust-stmts").primaryLocation().message());
+                fileMap.get(":file13.sql").primaryLocation().message());
 
-        assertEquals(13, issueMap.size());
+        assertEquals(13, fileMap.size());
     }
 
     @Test
     public void banDropDatabase() {
         createFile(contextTester, "file1.sql", "DROP DATABASE foo;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_BAN_DROP_DATABASE);
+        final RuleKey rule = RULE_BAN_DROP_DATABASE;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Dropping a database may break existing clients.",
-                issueMap.get(":file1.sql").get("ban-drop-database").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -190,20 +185,21 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file1.sql", "DROP INDEX IF EXISTS idx1, idx2;");
         createFile(contextTester, "file2.sql", "create index if not exists idx1 on foo (id);");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_CONCURRENTLY);
+        final RuleKey rule = RULE_CONCURRENTLY;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Add CONCURRENTLY to DROP INDEX idx1, idx2",
-                issueMap.get(":file1.sql").get("concurrently").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file2.sql").size());
         assertEquals("Add CONCURRENTLY to CREATE INDEX idx1",
-                issueMap.get(":file2.sql").get("concurrently").primaryLocation().message());
+                fileMap.get(":file2.sql").primaryLocation().message());
 
-        assertEquals(2, issueMap.size());
+        assertEquals(2, fileMap.size());
     }
 
     @Test
@@ -216,28 +212,27 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file5-ok.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;" +
                                                                 "ALTER TABLE IF EXISTS foo VALIDATE CONSTRAINT fk_bar;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_ADD_FOREIGN_KEY);
+        final RuleKey rule = RULE_ADD_FOREIGN_KEY;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+        
         assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
-                issueMap.get(":file1.sql").get("adding-foreign-key-constraint").primaryLocation().message());
-
-        assertEquals(1, issueMap.get(":file2.sql").size());
+                fileMap.get(":file1.sql").primaryLocation().message());
+        
         assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
-                issueMap.get(":file2.sql").get("adding-foreign-key-constraint").primaryLocation().message());
-
-        assertEquals(1, issueMap.get(":file3.sql").size());
+                fileMap.get(":file2.sql").primaryLocation().message());
+        
         assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
-                issueMap.get(":file3.sql").get("adding-foreign-key-constraint").primaryLocation().message());
-
-        assertEquals(1, issueMap.get(":file4.sql").size());
+                fileMap.get(":file3.sql").primaryLocation().message());
+        
         assertEquals("Adding a foreign key constraint requires a table scan and a SHARE ROW EXCLUSIVE lock on both tables, which blocks writes to each table.",
-                issueMap.get(":file4.sql").get("adding-foreign-key-constraint").primaryLocation().message());
+                fileMap.get(":file4.sql").primaryLocation().message());
 
-        assertEquals(4, issueMap.size());
+        assertEquals(4, fileMap.size());
     }
 
     @Test
@@ -245,20 +240,21 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file1.sql", "create table if not exists foo (id int, name char(100) NOT NULL);");
         createFile(contextTester, "file2.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name character;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_BAN_CHAR_FIELD);
+        final RuleKey rule = RULE_BAN_CHAR_FIELD;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Using character is likely a mistake and should almost always be replaced by text or varchar.",
-                issueMap.get(":file1.sql").get("ban-char-field").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file2.sql").size());
         assertEquals("Using character is likely a mistake and should almost always be replaced by text or varchar.",
-                issueMap.get(":file2.sql").get("ban-char-field").primaryLocation().message());
+                fileMap.get(":file2.sql").primaryLocation().message());
 
-        assertEquals(2, issueMap.size());
+        assertEquals(2, fileMap.size());
     }
 
     @Test
@@ -269,20 +265,21 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file3-ok.sql", "create table if not exists foo (id int, name varchar NOT NULL);");
         createFile(contextTester, "file4-ok.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name varchar;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_PREFER_TEXT_FIELD);
+        final RuleKey rule = RULE_PREFER_TEXT_FIELD;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Changing the size of a varchar field requires an ACCESS EXCLUSIVE lock, that will prevent all reads and writes to the table.",
-                issueMap.get(":file1.sql").get("prefer-text-field").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.get(":file2.sql").size());
         assertEquals("Changing the size of a varchar field requires an ACCESS EXCLUSIVE lock, that will prevent all reads and writes to the table.",
-                issueMap.get(":file2.sql").get("prefer-text-field").primaryLocation().message());
+                fileMap.get(":file2.sql").primaryLocation().message());
 
-        assertEquals(2, issueMap.size());
+        assertEquals(2, fileMap.size());
     }
 
     @Test
@@ -291,16 +288,18 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file2-ok.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT -1;");
         createFile(contextTester, "file3-ok.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT random();");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_ADD_FIELD_WITH_DEFAULT);
+        final RuleKey rule = RULE_ADD_FIELD_WITH_DEFAULT;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Adding a field with a VOLATILE default can cause table rewrites, which will take an ACCESS EXCLUSIVE lock on the table, blocking reads / writes while the statement is running.",
-                issueMap.get(":file1.sql").get("adding-field-with-default").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -308,16 +307,18 @@ class PostgresSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN id SET NOT NULL;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_SETTING_NOT_NULLABLE_FIELD);
+        final RuleKey rule = RULE_SETTING_NOT_NULLABLE_FIELD;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Setting a column as NOT NULL will require a scan of the entire table. However, if a valid CHECK constraint is found which proves no NULL can exist, then the table scan is skipped.",
-                issueMap.get(":file1.sql").get("setting-not-nullable-field").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -327,16 +328,18 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file2-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_pk_idx ON foo (id); " +
                                                                 "ALTER TABLE IF EXISTS foo ADD CONSTRAINT foo_pk PRIMARY KEY USING INDEX foo_pk_idx;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD);
+        final RuleKey rule = RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("If PRIMARY KEY is specified, and the index's columns are not already marked NOT NULL, then this command will attempt to do ALTER COLUMN SET NOT NULL against each such column. That requires a full table scan to verify the column(s) contain no nulls. In all other cases, this is a fast operation.",
-                issueMap.get(":file1.sql").get("adding-serial-primary-key-field").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -344,32 +347,36 @@ class PostgresSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo DROP CONSTRAINT bar_constraint;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_DROP_CONSTRAINT_DROPS_INDEX);
+        final RuleKey rule = RULE_DROP_CONSTRAINT_DROPS_INDEX;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Dropping a primary or unique constraint also drops any index underlying the constraint",
-                issueMap.get(":file1.sql").get("drop-constraint-drops-index").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
     public void changingColumnType() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN id TYPE bigint;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_CHANGING_COLUMN_TYPE);
+        final RuleKey rule = RULE_CHANGING_COLUMN_TYPE;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Changing a column type requires an ACCESS EXCLUSIVE lock on the table which blocks reads and writes while the table is rewritten.",
-                issueMap.get(":file1.sql").get("changing-column-type").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -378,16 +385,18 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file2-ok.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT positive_balance CHECK (balance >= 0) NOT VALID;" +
                                                                 "ALTER TABLE IF EXISTS foo VALIDATE CONSTRAINT positive_balance;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_CONSTRAINT_MISSING_NOT_VALID);
+        final RuleKey rule = RULE_CONSTRAINT_MISSING_NOT_VALID;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("By default new constraints require a table scan and block writes to the table while that scan occurs.",
-                issueMap.get(":file1.sql").get("constraint-missing-not-valid").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -398,16 +407,18 @@ class PostgresSqlSensorTest {
                                                                 "   DROP CONSTRAINT IF EXISTS name_constraint," +
                                                                 "   ADD CONSTRAINT name_constraint UNIQUE USING INDEX foo_name_temp_idx;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_DISALLOWED_UNIQUE_CONSTRAINT);
+        final RuleKey rule = RULE_DISALLOWED_UNIQUE_CONSTRAINT;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Adding a UNIQUE constraint requires an ACCESS EXCLUSIVE lock which blocks reads and writes to the table while the index is built.",
-                issueMap.get(":file1.sql").get("disallowed-unique-constraint").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
@@ -415,32 +426,36 @@ class PostgresSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo RENAME COLUMN bar TO baz;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_RENAMING_COLUMN);
+        final RuleKey rule = RULE_RENAMING_COLUMN;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Renaming a column may break existing clients.",
-                issueMap.get(":file1.sql").get("renaming-column").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     @Test
     public void renamingTable() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo RENAME TO bar;");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_RENAMING_TABLE);
+        final RuleKey rule = RULE_RENAMING_TABLE;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
-        final Map<String, Map<String, Issue>> issueMap = groupByFile(contextTester.allIssues());
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.get(":file1.sql").size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
         assertEquals("Renaming a table may break existing clients that depend on the old table name.",
-                issueMap.get(":file1.sql").get("renaming-table").primaryLocation().message());
+                fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, issueMap.size());
+        assertEquals(1, fileMap.size());
     }
 
     private PostgresSqlSensor getPostgresSqlSensor(RuleKey ruleKey) {
@@ -458,10 +473,10 @@ class PostgresSqlSensorTest {
         return new PostgresSqlSensor(checkFactory);
     }
 
-    private Map<String, Map<String, Issue>> groupByFile(Collection<Issue> allIssues) {
+    private Map<RuleKey, Map<String, Issue>> groupByRuleAndFile(Collection<Issue> allIssues) {
         return allIssues.stream()
-                .collect(Collectors.groupingBy(x -> x.primaryLocation().inputComponent().key(),
-                        Collectors.toMap(y -> y.ruleKey().rule(), z -> z)));
+                .collect(Collectors.groupingBy(IIssue::ruleKey,
+                        Collectors.toMap(issue -> issue.primaryLocation().inputComponent().key(), issue -> issue)));
     }
 
     private void createFile(SensorContextTester contextTester, String relativePath, String content) {
