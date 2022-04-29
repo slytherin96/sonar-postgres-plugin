@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
+import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
@@ -46,6 +47,14 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                 .map(y -> y.getString().getStr())
                 .collect(Collectors.toList());
 
+        final List<String> domains = dropStmt.getObjectsList()
+                .stream()
+                .map(y -> y.getTypeName()
+                        .getNamesList())
+                .flatMap(List::stream)
+                .map(x -> x.getString().getStr())
+                .collect(Collectors.toList());
+
         if(!dropStmt.getMissingOk()){
             String message;
             final ObjectType removeType = dropStmt.getRemoveType();
@@ -64,6 +73,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_SCHEMA:
                     message = "Add IF EXISTS to DROP SCHEMA " + String.join(", ", schemas);
+                    break;
+                case OBJECT_DOMAIN:
+                    message = "Add IF EXISTS to DROP DOMAIN " + String.join(", ", domains);
                     break;
                 default:
                     message = "Add IF EXISTS";
@@ -186,6 +198,20 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue.save();
         }
         super.visit(createSchemaStmt);
+    }
+
+    @Override
+    public void visit(AlterDomainStmt alterDomainStmt) {
+        if (!alterDomainStmt.getMissingOk()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF EXISTS to DROP CONSTRAINT " + alterDomainStmt.getName());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
     }
 
     @Override

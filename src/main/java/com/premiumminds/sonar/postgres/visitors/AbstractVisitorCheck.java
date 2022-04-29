@@ -1,5 +1,6 @@
 package com.premiumminds.sonar.postgres.visitors;
 
+import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
@@ -80,6 +81,11 @@ public class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(AlterDomainStmt alterDomainStmt) {
+
+    }
+
+    @Override
     public void visit(AlterTableCmd alterTableCmd) {
 
         final AlterTableType subtype = alterTableCmd.getSubtype();
@@ -145,6 +151,8 @@ public class AbstractVisitorCheck implements VisitorCheck {
             visit(rawStmt.getStmt().getAlterSeqStmt());
         } else if (rawStmt.getStmt().hasCreateSchemaStmt()){
             visit(rawStmt.getStmt().getCreateSchemaStmt());
+        } else if (rawStmt.getStmt().hasAlterDomainStmt()){
+            visit(rawStmt.getStmt().getAlterDomainStmt());
         }
     }
 

@@ -142,6 +142,14 @@ ALTER TABLE "foo_tbl" DROP CONSTRAINT "foo_constraint";
 ALTER TABLE "foo_tbl" DROP CONSTRAINT IF EXISTS "foo_constraint";
 ``
 
+``sql
+-- instead of:
+ALTER DOMAIN us_postal_code DROP CONSTRAINT zipchk;
+
+-- use:
+ALTER DOMAIN us_postal_code DROP CONSTRAINT IF EXISTS zipchk;
+``
+
 === remove index
 
 ``sql
@@ -180,4 +188,14 @@ DROP SCHEMA foo;
 
 -- use:
 DROP SCHEMA IF EXISTS foo;
+``
+
+=== drop domain
+
+``sql
+-- instead of:
+DROP DOMAIN foo;
+
+-- use:
+DROP DOMAIN IF EXISTS foo;
 ``

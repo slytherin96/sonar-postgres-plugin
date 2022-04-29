@@ -115,6 +115,8 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file15.sql", "DROP VIEW foo, bar;");
         createFile(contextTester, "file16.sql", "CREATE SCHEMA foo;");
         createFile(contextTester, "file17.sql", "DROP SCHEMA foo, bar;");
+        createFile(contextTester, "file18.sql", "DROP DOMAIN foo, bar;");
+        createFile(contextTester, "file19.sql", "ALTER DOMAIN foo DROP CONSTRAINT bar;");
 
         final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -175,7 +177,13 @@ class PostgresSqlSensorTest {
         assertEquals("Add IF EXISTS to DROP SCHEMA foo, bar",
                 fileMap.get(":file17.sql").primaryLocation().message());
 
-        assertEquals(17, fileMap.size());
+        assertEquals("Add IF EXISTS to DROP DOMAIN foo, bar",
+                fileMap.get(":file18.sql").primaryLocation().message());
+
+        assertEquals("Add IF EXISTS to DROP CONSTRAINT bar",
+                fileMap.get(":file19.sql").primaryLocation().message());
+
+        assertEquals(19, fileMap.size());
     }
 
     @Test

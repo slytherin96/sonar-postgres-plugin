@@ -1,5 +1,6 @@
 package com.premiumminds.sonar.postgres.visitors;
 
+import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
@@ -28,6 +29,7 @@ public interface VisitorCheck {
     void visit(IndexStmt indexStmt);
     void visit(CreateStmt createStmt);
     void visit(CreateSchemaStmt createSchemaStmt);
+    void visit(AlterDomainStmt alterDomainStmt);
     void visit(AlterTableCmd alterTableCmd);
     void visitCreateTableColumnConstraint(Constraint constraint);
     void visitCreateTableTableConstraint(Constraint constraint);
