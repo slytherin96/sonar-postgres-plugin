@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
+import com.premiumminds.sonar.postgres.protobuf.AlterEnumStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
@@ -81,6 +82,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_MATVIEW:
                     message = "Add IF EXISTS to DROP MATERIALIZED VIEW " + String.join(", ", names);
+                    break;
+                case OBJECT_TYPE:
+                    message = "Add IF EXISTS to DROP TYPE " + String.join(", ", domains);
                     break;
                 default:
                     message = "Add IF EXISTS";
@@ -254,6 +258,21 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue.at(primaryLocation);
             newIssue.save();
         }
+    }
+
+    @Override
+    public void visit(AlterEnumStmt alterEnumStmt) {
+        if (!alterEnumStmt.getSkipIfNewValExists()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF NOT EXISTS to ADD VALUE " + alterEnumStmt.getNewVal());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+        System.out.println(alterEnumStmt);
     }
 
     @Override

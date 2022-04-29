@@ -1,6 +1,7 @@
 package com.premiumminds.sonar.postgres.visitors;
 
 import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
+import com.premiumminds.sonar.postgres.protobuf.AlterEnumStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
@@ -92,6 +93,11 @@ public class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(AlterEnumStmt alterEnumStmt) {
+
+    }
+
+    @Override
     public void visit(AlterTableCmd alterTableCmd) {
 
         final AlterTableType subtype = alterTableCmd.getSubtype();
@@ -161,6 +167,8 @@ public class AbstractVisitorCheck implements VisitorCheck {
             visit(rawStmt.getStmt().getAlterDomainStmt());
         } else if (rawStmt.getStmt().hasCreateTableAsStmt()){
             visit(rawStmt.getStmt().getCreateTableAsStmt());
+        } else if (rawStmt.getStmt().hasAlterEnumStmt()){
+            visit(rawStmt.getStmt().getAlterEnumStmt());
         }
     }
 
