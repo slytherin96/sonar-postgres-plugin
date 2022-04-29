@@ -188,13 +188,23 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
 
     @Override
     public void visit(CreateTableAsStmt createTableAsStmt) {
+        String message = null;
+        final ObjectType relkind = createTableAsStmt.getRelkind();
+        switch (relkind){
+            case OBJECT_TABLE:
+                message = "Add IF NOT EXISTS to CREATE TABLE " + createTableAsStmt.getInto().getRel().getRelname() + " AS ";
+                break;
+            case OBJECT_MATVIEW:
+                message = "Add IF NOT EXISTS to CREATE MATERIALIZED VIEW " + createTableAsStmt.getInto().getRel().getRelname();
+                break;
+        }
         if (!createTableAsStmt.getIfNotExists()){
             NewIssue newIssue = getContext().newIssue()
                     .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
             NewIssueLocation primaryLocation = newIssue.newLocation()
                     .on(getFile())
                     .at(getTextRange())
-                    .message("Add IF NOT EXISTS to CREATE MATERIALIZED VIEW " + createTableAsStmt.getInto().getRel().getRelname());
+                    .message(message);
             newIssue.at(primaryLocation);
             newIssue.save();
         }
