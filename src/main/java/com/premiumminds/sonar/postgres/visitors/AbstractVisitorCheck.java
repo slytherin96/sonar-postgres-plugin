@@ -16,6 +16,7 @@ import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
+import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -59,6 +60,11 @@ public class AbstractVisitorCheck implements VisitorCheck {
 
     @Override
     public void visit(IndexStmt indexStmt) {
+
+    }
+
+    @Override
+    public void visit(ReindexStmt reindexStmt) {
 
     }
 
@@ -169,6 +175,8 @@ public class AbstractVisitorCheck implements VisitorCheck {
             visit(rawStmt.getStmt().getCreateTableAsStmt());
         } else if (rawStmt.getStmt().hasAlterEnumStmt()){
             visit(rawStmt.getStmt().getAlterEnumStmt());
+        } else if (rawStmt.getStmt().hasReindexStmt()){
+            visit(rawStmt.getStmt().getReindexStmt());
         }
     }
 

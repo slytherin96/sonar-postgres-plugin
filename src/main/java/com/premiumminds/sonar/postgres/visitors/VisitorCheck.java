@@ -15,6 +15,7 @@ import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
+import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -29,6 +30,7 @@ public interface VisitorCheck {
     void visit(RenameStmt renameStmt);
     void visit(DropdbStmt dropdbStmt);
     void visit(IndexStmt indexStmt);
+    void visit(ReindexStmt reindexStmt);
     void visit(CreateTableAsStmt createTableAsStmt);
     void visit(CreateStmt createStmt);
     void visit(CreateSchemaStmt createSchemaStmt);
