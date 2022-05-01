@@ -318,9 +318,26 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             case AT_AddColumn:
                 addColumn(getContext(), getFile(), getTextRange(), alterTableCmd);
                 break;
+            case AT_DropExpression:
+                dropExpression(getContext(), getFile(), getTextRange(), alterTableCmd);
+                break;
         }
 
         super.visit(alterTableCmd);
+    }
+
+    private void dropExpression(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
+        final String name = alterTableCmd.getName();
+        if(!alterTableCmd.getMissingOk()){
+            NewIssue newIssue = context.newIssue()
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(file)
+                    .at(textRange)
+                    .message("Add IF EXISTS to DROP EXPRESSION " + name);
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
     }
 
     private void dropConstraint(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
