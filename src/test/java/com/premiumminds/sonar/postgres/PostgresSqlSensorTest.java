@@ -35,6 +35,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PR
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_COLUMN;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_TABLE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_VACUUM_FULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PostgresSqlSensorTest {
@@ -256,6 +257,24 @@ class PostgresSqlSensorTest {
                 fileMap.get(":file3.sql").primaryLocation().message());
 
         assertEquals(3, fileMap.size());
+    }
+
+    @Test
+    public void vacuum() {
+        createFile(contextTester, "file1.sql", "VACUUM FULL foo, bar;");
+
+        final RuleKey rule = RULE_VACUUM_FULL;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("VACUUM FULL exclusively locks the table while running",
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals(1, fileMap.size());
     }
 
     @Test

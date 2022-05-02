@@ -19,6 +19,7 @@ import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.RenameTableVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.RobustStatementsVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.SettingNotNullVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.VacuumFullVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.VisitorCheck;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -46,6 +47,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_RENAMING_TABLE = RuleKey.of(REPOSITORY, "renaming-table");
     public static final RuleKey RULE_IDENTIFIER_MAX_LENGTH = RuleKey.of(REPOSITORY, "identifier-max-length");
     public static final RuleKey RULE_DROP_CONSTRAINT_DROPS_INDEX = RuleKey.of(REPOSITORY, "drop-constraint-drops-index");
+    public static final RuleKey RULE_VACUUM_FULL = RuleKey.of(REPOSITORY, "vacuum-full");
 
     @Override
     public void define(Context context) {
@@ -138,6 +140,12 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("drop-constraint-drops-index.md"));
 
+
+        repository.createRule(RULE_VACUUM_FULL.rule())
+                .setName("vacuum-full rule")
+                .setType(RuleType.BUG)
+                .setMarkdownDescription(getClass().getResource("vacuum-full.md"));
+
         repository.done();
     }
 
@@ -157,6 +165,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new AddForeignKeyVisitorCheck(),
                 new AddFieldWithDefaultVisitorCheck(),
                 new BanCharFieldVisitorCheck(),
-                new PreferTextFieldVisitorCheck());
+                new PreferTextFieldVisitorCheck(),
+                new VacuumFullVisitorCheck());
     }
 }

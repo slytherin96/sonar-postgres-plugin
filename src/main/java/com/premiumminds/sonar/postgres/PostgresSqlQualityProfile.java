@@ -20,6 +20,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PR
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_COLUMN;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_TABLE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_VACUUM_FULL;
 
 public class PostgresSqlQualityProfile implements BuiltInQualityProfilesDefinition {
     @Override
@@ -44,6 +45,7 @@ public class PostgresSqlQualityProfile implements BuiltInQualityProfilesDefiniti
         activateRule(profile, RULE_RENAMING_TABLE);
         activateRule(profile, RULE_IDENTIFIER_MAX_LENGTH);
         activateRule(profile, RULE_DROP_CONSTRAINT_DROPS_INDEX);
+        activateRule(profile, RULE_VACUUM_FULL);
 
         profile.done();
     }

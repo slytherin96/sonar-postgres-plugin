@@ -18,6 +18,7 @@ import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
+import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -77,9 +78,9 @@ public class AbstractVisitorCheck implements VisitorCheck {
     public void visit(CreateStmt createStmt) {
         createStmt.getTableEltsList()
             .forEach(tableElt -> {
-                tableElt.getColumnDef().getConstraintsList().forEach(node -> {
-                    visitCreateTableColumnConstraint(node.getConstraint());
-                });
+                tableElt.getColumnDef()
+                        .getConstraintsList()
+                        .forEach(node -> visitCreateTableColumnConstraint(node.getConstraint()));
 
                 visitCreateTableTableConstraint(tableElt.getConstraint());
 
@@ -115,9 +116,8 @@ public class AbstractVisitorCheck implements VisitorCheck {
         }
 
         final ColumnDef columnDef = alterTableCmd.getDef().getColumnDef();
-        columnDef.getConstraintsList().forEach(node -> {
-            visitAlterTableColumnConstraint(node.getConstraint());
-        });
+        columnDef.getConstraintsList()
+                .forEach(node -> visitAlterTableColumnConstraint(node.getConstraint()));
     }
 
     @Override
@@ -142,6 +142,11 @@ public class AbstractVisitorCheck implements VisitorCheck {
 
     @Override
     public void visit(ColumnDef columnDef) {
+
+    }
+
+    @Override
+    public void visit(VacuumStmt vacuumStmt) {
 
     }
 
@@ -177,6 +182,8 @@ public class AbstractVisitorCheck implements VisitorCheck {
             visit(rawStmt.getStmt().getAlterEnumStmt());
         } else if (rawStmt.getStmt().hasReindexStmt()){
             visit(rawStmt.getStmt().getReindexStmt());
+        } else if (rawStmt.getStmt().hasVacuumStmt()){
+            visit(rawStmt.getStmt().getVacuumStmt());
         }
     }
 
