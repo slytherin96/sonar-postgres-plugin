@@ -14,6 +14,7 @@ import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.PreferIdentityVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.PreferTextFieldVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.RenameTableVisitorCheck;
@@ -48,6 +49,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_IDENTIFIER_MAX_LENGTH = RuleKey.of(REPOSITORY, "identifier-max-length");
     public static final RuleKey RULE_DROP_CONSTRAINT_DROPS_INDEX = RuleKey.of(REPOSITORY, "drop-constraint-drops-index");
     public static final RuleKey RULE_VACUUM_FULL = RuleKey.of(REPOSITORY, "vacuum-full");
+    public static final RuleKey RULE_PREFER_IDENTITY_FIELD = RuleKey.of(REPOSITORY, "prefer-identity-field");
 
     @Override
     public void define(Context context) {
@@ -146,6 +148,11 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("vacuum-full.md"));
 
+        repository.createRule(RULE_PREFER_IDENTITY_FIELD.rule())
+                .setName("prefer-identity-field rule")
+                .setType(RuleType.BUG)
+                .setMarkdownDescription(getClass().getResource("prefer-identity-field.md"));
+
         repository.done();
     }
 
@@ -166,6 +173,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new AddFieldWithDefaultVisitorCheck(),
                 new BanCharFieldVisitorCheck(),
                 new PreferTextFieldVisitorCheck(),
-                new VacuumFullVisitorCheck());
+                new VacuumFullVisitorCheck(),
+                new PreferIdentityVisitorCheck());
     }
 }

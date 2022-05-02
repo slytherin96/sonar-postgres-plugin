@@ -15,6 +15,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DI
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_CONSTRAINT_DROPS_INDEX;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_IDENTITY_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_TEXT_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_COLUMN;
@@ -46,6 +47,7 @@ public class PostgresSqlQualityProfile implements BuiltInQualityProfilesDefiniti
         activateRule(profile, RULE_IDENTIFIER_MAX_LENGTH);
         activateRule(profile, RULE_DROP_CONSTRAINT_DROPS_INDEX);
         activateRule(profile, RULE_VACUUM_FULL);
+        activateRule(profile, RULE_PREFER_IDENTITY_FIELD);
 
         profile.done();
     }

@@ -30,6 +30,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DI
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_CONSTRAINT_DROPS_INDEX;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_IDENTITY_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_TEXT_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RENAMING_COLUMN;
@@ -353,6 +354,30 @@ class PostgresSqlSensorTest {
 
         assertEquals("Changing the size of a varchar field requires an ACCESS EXCLUSIVE lock, that will prevent all reads and writes to the table.",
                 fileMap.get(":file2.sql").primaryLocation().message());
+
+        assertEquals(2, fileMap.size());
+    }
+
+    @Test
+    public void preferIdentityField() {
+
+        createFile(contextTester, "file1.sql", "create table if not exists foo (id serial, name text NOT NULL);");
+        createFile(contextTester, "file2.sql", "ALTER TABLE foo ADD COLUMN id serial PRIMARY KEY;");
+
+        final RuleKey rule = RULE_PREFER_IDENTITY_FIELD;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("For new applications, identity columns should be used instead.",
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals("For new applications, identity columns should be used instead.",
+                fileMap.get(":file2.sql").primaryLocation().message());
+
 
         assertEquals(2, fileMap.size());
     }
