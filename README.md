@@ -16,6 +16,10 @@ This plugin uses [libpg_query](https://github.com/pganalyze/libpg_query). There 
 git clone -o github git@github.com:pganalyze/libpg_query.git
 cd libpg_query
 
+# to use GLIBC_2.31
+docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp gcc:11 make build_shared
+cp libpg_query.so src/main/resources/linux-x86-64/
+
 # default compiler
 make build_shared
 cp libpg_query.so src/main/resources/linux-x86-64/
