@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -47,6 +48,25 @@ class PostgresSqlSensorTest {
     void before(){
         final Path file = Paths.get("");
         contextTester = SensorContextTester.create(file);
+    }
+
+    @Disabled( value = "PL/pgSQL is not supported yet")
+    @Test
+    public void plpgsqlNotSupported() {
+        createFile(contextTester, "file1.sql", "DO $$begin create table foo (id int); END;$$");
+
+        final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("Add IF NOT EXISTS to CREATE TABLE foo",
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals(1, issueMap.size());
     }
 
     @Test
