@@ -11,6 +11,7 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
+import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
@@ -85,6 +86,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_TYPE:
                     message = "Add IF EXISTS to DROP TYPE " + String.join(", ", domains);
+                    break;
+                case OBJECT_EXTENSION:
+                    message = "Add IF EXISTS to DROP EXTENSION " + String.join(", ", schemas);
                     break;
                 default:
                     message = "Add IF EXISTS";
@@ -272,7 +276,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue.at(primaryLocation);
             newIssue.save();
         }
-        System.out.println(alterEnumStmt);
+        super.visit(alterEnumStmt);
     }
 
     @Override
@@ -303,6 +307,22 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         }
 
         super.visit(alterTableStmt);
+    }
+
+    @Override
+    public void visit(CreateExtensionStmt createExtensionStmt) {
+
+        if(!createExtensionStmt.getIfNotExists()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add IF NOT EXISTS to CREATE EXTENSION " + createExtensionStmt.getExtname());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+        super.visit(createExtensionStmt);
     }
 
     @Override

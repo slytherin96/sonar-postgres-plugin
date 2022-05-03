@@ -7,6 +7,7 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
+import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
@@ -44,7 +45,7 @@ public interface VisitorCheck {
     void visitAlterTableTableConstraint(Constraint constraint);
     void visit(ColumnDef columnDef);
     void visit(VacuumStmt vacuumStmt);
+    void visit(CreateExtensionStmt createExtensionStmt);
 
     void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt);
-
 }
