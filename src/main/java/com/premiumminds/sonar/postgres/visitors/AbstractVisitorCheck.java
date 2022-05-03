@@ -17,6 +17,7 @@ import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
+import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
@@ -157,6 +158,11 @@ public class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(RefreshMatViewStmt refreshMatViewStmt) {
+
+    }
+
+    @Override
     public void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt) {
         this.context = context;
         this.file = file;
@@ -192,6 +198,8 @@ public class AbstractVisitorCheck implements VisitorCheck {
             visit(rawStmt.getStmt().getVacuumStmt());
         } else if (rawStmt.getStmt().hasCreateExtensionStmt()){
             visit(rawStmt.getStmt().getCreateExtensionStmt());
+        } else if (rawStmt.getStmt().hasRefreshMatViewStmt()){
+            visit(rawStmt.getStmt().getRefreshMatViewStmt());
         }
     }
 

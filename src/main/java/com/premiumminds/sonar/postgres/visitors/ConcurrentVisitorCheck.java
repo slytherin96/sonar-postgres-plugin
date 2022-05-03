@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;
+import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
@@ -69,6 +70,21 @@ public class ConcurrentVisitorCheck extends AbstractVisitorCheck {
             newIssue.save();
         }
         super.visit(reindexStmt);
+    }
+
+    @Override
+    public void visit(RefreshMatViewStmt refreshMatViewStmt) {
+        if (!refreshMatViewStmt.getConcurrent()){
+            NewIssue newIssue = getContext().newIssue()
+                    .forRule(RULE_CONCURRENTLY);
+            NewIssueLocation primaryLocation = newIssue.newLocation()
+                    .on(getFile())
+                    .at(getTextRange())
+                    .message("Add CONCURRENTLY to REFRESH MATERIALIZED VIEW " + refreshMatViewStmt.getRelation().getRelname());
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+        super.visit(refreshMatViewStmt);
     }
 
 }

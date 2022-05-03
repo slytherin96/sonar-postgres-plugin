@@ -16,6 +16,7 @@ import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
+import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
@@ -46,6 +47,7 @@ public interface VisitorCheck {
     void visit(ColumnDef columnDef);
     void visit(VacuumStmt vacuumStmt);
     void visit(CreateExtensionStmt createExtensionStmt);
+    void visit(RefreshMatViewStmt refreshMatViewStmt);
 
     void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt);
 }
