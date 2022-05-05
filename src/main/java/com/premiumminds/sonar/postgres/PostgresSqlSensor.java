@@ -29,6 +29,8 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PA
 
 public class PostgresSqlSensor implements Sensor {
 
+    private static final String FAIL_FAST_PROPERTY_NAME = "sonar.internal.analysis.failFast";
+
     private final CheckFactory checkFactory;
 
     public PostgresSqlSensor(CheckFactory checkFactory) {
@@ -53,7 +55,7 @@ public class PostgresSqlSensor implements Sensor {
         for (InputFile file : files) {
 
             if (context.isCancelled()) {
-                throw new RuntimeException("Analysis cancelled");
+                LOGGER.warn("Analysis cancelled");
             }
 
             try {
@@ -62,7 +64,9 @@ public class PostgresSqlSensor implements Sensor {
                 scanContents(context, postgreSqlFile);
             } catch (Exception e) {
                 LOGGER.error("problem parsing file: " + file.filename(), e);
-                throw new RuntimeException(e);
+                if (context.config().getBoolean(FAIL_FAST_PROPERTY_NAME).orElse(false)) {
+                    throw new IllegalStateException("Exception when analyzing " + file, e);
+                }
             }
         }
     }
