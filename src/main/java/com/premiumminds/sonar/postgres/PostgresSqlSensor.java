@@ -43,7 +43,7 @@ public class PostgresSqlSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
-        descriptor.name("Analyzes issues on Postgresql script files");
+        descriptor.name("Postgresql SQL files");
         descriptor.onlyOnLanguage(PostgresSqlLanguage.KEY);
         descriptor.createIssuesForRuleRepositories(REPOSITORY);
     }
