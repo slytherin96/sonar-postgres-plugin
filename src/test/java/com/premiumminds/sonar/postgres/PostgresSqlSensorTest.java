@@ -1,5 +1,6 @@
 package com.premiumminds.sonar.postgres;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -86,6 +87,21 @@ class PostgresSqlSensorTest {
                 fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    void parsesOK() {
+
+        createFile(contextTester, "file1.sql", "SELECT 1;\r\nSELECT 2;\r\nSELECT 3;");
+        createFile(contextTester, "file2.sql", "SELECT 'Évora 1';\nSELECT 'Évora 2';\nSELECT 'Évora 3';");
+        createFile(contextTester, "file3.sql", "INSERT INTO foo VALUESXX(\"éééééééééééé\"), (\"a\");");
+
+        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_PARSE_ERROR);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        assertEquals(1, issueMap.size());
     }
 
     @Test
@@ -615,6 +631,7 @@ class PostgresSqlSensorTest {
         contextTester.fileSystem().add(TestInputFileBuilder.create("", relativePath)
                 .setLanguage(PostgresSqlLanguage.KEY)
                 .setContents(content)
+                .setCharset(StandardCharsets.UTF_8)
                 .build());
     }
 }
