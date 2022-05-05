@@ -24,8 +24,11 @@ import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.rule.RuleKey;
 
-public class AbstractVisitorCheck implements VisitorCheck {
+public abstract class AbstractVisitorCheck implements VisitorCheck {
 
     private SensorContext context;
     private InputFile file;
@@ -203,15 +206,28 @@ public class AbstractVisitorCheck implements VisitorCheck {
         }
     }
 
-    public SensorContext getContext() {
+    protected SensorContext getContext() {
         return context;
     }
 
-    public InputFile getFile() {
+    protected InputFile getFile() {
         return file;
     }
 
-    public TextRange getTextRange() {
+    protected TextRange getTextRange() {
         return textRange;
+    }
+
+    protected abstract RuleKey getRule();
+
+    protected void newIssue(String message) {
+        NewIssue newIssue = getContext().newIssue()
+                .forRule(getRule());
+        NewIssueLocation primaryLocation = newIssue.newLocation()
+                .on(getFile())
+                .at(getTextRange())
+                .message(message);
+        newIssue.at(primaryLocation);
+        newIssue.save();
     }
 }

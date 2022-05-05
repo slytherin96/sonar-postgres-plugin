@@ -3,7 +3,6 @@ package com.premiumminds.sonar.postgres.visitors;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition;
 import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterEnumStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
@@ -23,14 +22,10 @@ import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
-import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_INDEX;
-import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_MATVIEW;
-import static com.premiumminds.sonar.postgres.protobuf.ObjectType.OBJECT_VIEW;
 
 @Rule(key = "prefer-robust-stmts")
 public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
@@ -60,49 +55,39 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                 .collect(Collectors.toList());
 
         if(!dropStmt.getMissingOk()){
-            String message;
             final ObjectType removeType = dropStmt.getRemoveType();
             switch (removeType){
                 case OBJECT_TABLE:
-                    message = "Add IF EXISTS to DROP TABLE " + String.join(", ", names);
+                    newIssue("Add IF EXISTS to DROP TABLE " + String.join(", ", names));
                     break;
                 case OBJECT_SEQUENCE:
-                    message = "Add IF EXISTS to DROP SEQUENCE " + String.join(", ", names);
+                    newIssue("Add IF EXISTS to DROP SEQUENCE " + String.join(", ", names));
                     break;
                 case OBJECT_INDEX:
-                    message = "Add IF EXISTS to DROP INDEX " + String.join(", ", names);
+                    newIssue("Add IF EXISTS to DROP INDEX " + String.join(", ", names));
                     break;
                 case OBJECT_VIEW:
-                    message = "Add IF EXISTS to DROP VIEW " + String.join(", ", names);
+                    newIssue("Add IF EXISTS to DROP VIEW " + String.join(", ", names));
                     break;
                 case OBJECT_SCHEMA:
-                    message = "Add IF EXISTS to DROP SCHEMA " + String.join(", ", schemas);
+                    newIssue("Add IF EXISTS to DROP SCHEMA " + String.join(", ", schemas));
                     break;
                 case OBJECT_DOMAIN:
-                    message = "Add IF EXISTS to DROP DOMAIN " + String.join(", ", domains);
+                    newIssue("Add IF EXISTS to DROP DOMAIN " + String.join(", ", domains));
                     break;
                 case OBJECT_MATVIEW:
-                    message = "Add IF EXISTS to DROP MATERIALIZED VIEW " + String.join(", ", names);
+                    newIssue("Add IF EXISTS to DROP MATERIALIZED VIEW " + String.join(", ", names));
                     break;
                 case OBJECT_TYPE:
-                    message = "Add IF EXISTS to DROP TYPE " + String.join(", ", domains);
+                    newIssue("Add IF EXISTS to DROP TYPE " + String.join(", ", domains));
                     break;
                 case OBJECT_EXTENSION:
-                    message = "Add IF EXISTS to DROP EXTENSION " + String.join(", ", schemas);
+                    newIssue("Add IF EXISTS to DROP EXTENSION " + String.join(", ", schemas));
                     break;
                 default:
-                    message = "Add IF EXISTS";
+                    newIssue("Add IF EXISTS");
                     break;
             }
-
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message(message);
-            newIssue.at(primaryLocation);
-            newIssue.save();
         }
 
         super.visit(dropStmt);
@@ -111,37 +96,18 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(RenameStmt renameStmt) {
         final ObjectType renameType = renameStmt.getRenameType();
-        if (renameType.equals(OBJECT_INDEX) && !renameStmt.getMissingOk()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF EXISTS to ALTER INDEX " + renameStmt.getRelation().getRelname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
-        }
-
-        if (renameType.equals(OBJECT_VIEW) && !renameStmt.getMissingOk()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF EXISTS to ALTER VIEW " + renameStmt.getRelation().getRelname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
-        }
-
-        if (renameType.equals(OBJECT_MATVIEW) && !renameStmt.getMissingOk()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF EXISTS to ALTER MATERIALIZED VIEW " + renameStmt.getRelation().getRelname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+        if (!renameStmt.getMissingOk()){
+            switch (renameType){
+                case OBJECT_INDEX:
+                    newIssue("Add IF EXISTS to ALTER INDEX " + renameStmt.getRelation().getRelname());
+                    break;
+                case OBJECT_VIEW:
+                    newIssue("Add IF EXISTS to ALTER VIEW " + renameStmt.getRelation().getRelname());
+                    break;
+                case OBJECT_MATVIEW:
+                    newIssue("Add IF EXISTS to ALTER MATERIALIZED VIEW " + renameStmt.getRelation().getRelname());
+                    break;
+            }
         }
 
         super.visit(renameStmt);
@@ -150,14 +116,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(IndexStmt indexStmt) {
         if (!indexStmt.getIfNotExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF NOT EXISTS to CREATE INDEX " + indexStmt.getIdxname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to CREATE INDEX " + indexStmt.getIdxname());
         }
 
         super.visit(indexStmt);
@@ -166,14 +125,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(AlterSeqStmt alterSeqStmt) {
         if (!alterSeqStmt.getMissingOk()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF EXISTS to ALTER SEQUENCE " + alterSeqStmt.getSequence().getRelname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF EXISTS to ALTER SEQUENCE " + alterSeqStmt.getSequence().getRelname());
         }
 
         super.visit(alterSeqStmt);
@@ -182,39 +134,24 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(CreateSeqStmt createSeqStmt) {
         if (!createSeqStmt.getIfNotExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF NOT EXISTS to CREATE SEQUENCE " + createSeqStmt.getSequence().getRelname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to CREATE SEQUENCE " + createSeqStmt.getSequence().getRelname());
         }
         super.visit(createSeqStmt);
     }
 
     @Override
     public void visit(CreateTableAsStmt createTableAsStmt) {
-        String message = null;
+
         final ObjectType relkind = createTableAsStmt.getRelkind();
-        switch (relkind){
-            case OBJECT_TABLE:
-                message = "Add IF NOT EXISTS to CREATE TABLE " + createTableAsStmt.getInto().getRel().getRelname() + " AS ";
-                break;
-            case OBJECT_MATVIEW:
-                message = "Add IF NOT EXISTS to CREATE MATERIALIZED VIEW " + createTableAsStmt.getInto().getRel().getRelname();
-                break;
-        }
         if (!createTableAsStmt.getIfNotExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message(message);
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            switch (relkind){
+                case OBJECT_TABLE:
+                    newIssue("Add IF NOT EXISTS to CREATE TABLE " + createTableAsStmt.getInto().getRel().getRelname() + " AS ");
+                    break;
+                case OBJECT_MATVIEW:
+                    newIssue("Add IF NOT EXISTS to CREATE MATERIALIZED VIEW " + createTableAsStmt.getInto().getRel().getRelname());
+                    break;
+            }
         }
 
         super.visit(createTableAsStmt);
@@ -223,14 +160,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(CreateStmt createStmt) {
         if (!createStmt.getIfNotExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF NOT EXISTS to CREATE TABLE " + createStmt.getRelation().getRelname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to CREATE TABLE " + createStmt.getRelation().getRelname());
         }
         super.visit(createStmt);
     }
@@ -238,14 +168,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(CreateSchemaStmt createSchemaStmt) {
         if (!createSchemaStmt.getIfNotExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF NOT EXISTS to CREATE SCHEMA " + createSchemaStmt.getSchemaname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to CREATE SCHEMA " + createSchemaStmt.getSchemaname());
         }
         super.visit(createSchemaStmt);
     }
@@ -253,28 +176,14 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(AlterDomainStmt alterDomainStmt) {
         if (!alterDomainStmt.getMissingOk()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF EXISTS to DROP CONSTRAINT " + alterDomainStmt.getName());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF EXISTS to DROP CONSTRAINT " + alterDomainStmt.getName());
         }
     }
 
     @Override
     public void visit(AlterEnumStmt alterEnumStmt) {
         if (!alterEnumStmt.getSkipIfNewValExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF NOT EXISTS to ADD VALUE " + alterEnumStmt.getNewVal());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to ADD VALUE " + alterEnumStmt.getNewVal());
         }
         super.visit(alterEnumStmt);
     }
@@ -282,28 +191,18 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     @Override
     public void visit(AlterTableStmt alterTableStmt) {
         if(!alterTableStmt.getMissingOk()){
-            String message;
             final ObjectType relkind = alterTableStmt.getRelkind();
             switch (relkind){
                 case OBJECT_TABLE:
-                    message = "Add IF EXISTS to ALTER TABLE " + alterTableStmt.getRelation().getRelname();
+                    newIssue("Add IF EXISTS to ALTER TABLE " + alterTableStmt.getRelation().getRelname());
                     break;
                 case OBJECT_INDEX:
-                    message = "Add IF EXISTS to ALTER INDEX " + alterTableStmt.getRelation().getRelname();
+                    newIssue("Add IF EXISTS to ALTER INDEX " + alterTableStmt.getRelation().getRelname());
                     break;
                 default:
-                    message = "Add IF EXISTS";
+                    newIssue("Add IF EXISTS");
                     break;
             }
-
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message(message);
-            newIssue.at(primaryLocation);
-            newIssue.save();
         }
 
         super.visit(alterTableStmt);
@@ -313,14 +212,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     public void visit(CreateExtensionStmt createExtensionStmt) {
 
         if(!createExtensionStmt.getIfNotExists()){
-            NewIssue newIssue = getContext().newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(getFile())
-                    .at(getTextRange())
-                    .message("Add IF NOT EXISTS to CREATE EXTENSION " + createExtensionStmt.getExtname());
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to CREATE EXTENSION " + createExtensionStmt.getExtname());
         }
         super.visit(createExtensionStmt);
     }
@@ -349,14 +241,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
     private void dropExpression(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
         final String name = alterTableCmd.getName();
         if(!alterTableCmd.getMissingOk()){
-            NewIssue newIssue = context.newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(file)
-                    .at(textRange)
-                    .message("Add IF EXISTS to DROP EXPRESSION " + name);
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF EXISTS to DROP EXPRESSION " + name);
         }
     }
 
@@ -364,14 +249,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         final String name = alterTableCmd.getName();
 
         if(!alterTableCmd.getMissingOk()){
-            NewIssue newIssue = context.newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(file)
-                    .at(textRange)
-                    .message("Add IF EXISTS to DROP CONSTRAINT " + name);
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF EXISTS to DROP CONSTRAINT " + name);
         }
     }
 
@@ -379,14 +257,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         final String name = alterTableCmd.getName();
 
         if(!alterTableCmd.getMissingOk()){
-            NewIssue newIssue = context.newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(file)
-                    .at(textRange)
-                    .message("Add IF EXISTS to DROP COLUMN " + name);
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF EXISTS to DROP COLUMN " + name);
         }
     }
 
@@ -395,14 +266,12 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         final String colname = columnDef.getColname();
 
         if (!alterTableCmd.getMissingOk()){
-            NewIssue newIssue = context.newIssue()
-                    .forRule(PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS);
-            NewIssueLocation primaryLocation = newIssue.newLocation()
-                    .on(file)
-                    .at(textRange)
-                    .message("Add IF NOT EXISTS to ADD COLUMN " + colname);
-            newIssue.at(primaryLocation);
-            newIssue.save();
+            newIssue("Add IF NOT EXISTS to ADD COLUMN " + colname);
         }
+    }
+
+    @Override
+    protected RuleKey getRule() {
+        return RULE_PREFER_ROBUST_STMTS;
     }
 }

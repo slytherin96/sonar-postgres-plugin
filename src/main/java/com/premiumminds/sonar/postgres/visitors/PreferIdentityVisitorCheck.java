@@ -2,8 +2,7 @@ package com.premiumminds.sonar.postgres.visitors;
 
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.TypeName;
-import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_IDENTITY_FIELD;
@@ -18,17 +17,15 @@ public class PreferIdentityVisitorCheck extends AbstractVisitorCheck {
             final String str = name.getString().getStr();
 
             if ("serial".equals(str)){
-                NewIssue newIssue = getContext().newIssue()
-                        .forRule(RULE_PREFER_IDENTITY_FIELD);
-                NewIssueLocation primaryLocation = newIssue.newLocation()
-                        .on(getFile())
-                        .at(getTextRange())
-                        .message("For new applications, identity columns should be used instead.");
-                newIssue.at(primaryLocation);
-                newIssue.save();
+                newIssue("For new applications, identity columns should be used instead.");
             }
         });
 
         super.visit(columnDef);
+    }
+
+    @Override
+    protected RuleKey getRule() {
+        return RULE_PREFER_IDENTITY_FIELD;
     }
 }
