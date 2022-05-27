@@ -31,6 +31,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CO
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_CONSTRAINT_DROPS_INDEX;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ONE_MIGRATION_PER_FILE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_IDENTITY_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
@@ -601,6 +602,25 @@ class PostgresSqlSensorTest {
         final Map<String, Issue> fileMap = issueMap.get(rule);
 
         assertEquals("Renaming a table may break existing clients that depend on the old table name.",
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    public void oneMigrationPerFile() {
+        createFile(contextTester, "file1.sql", "CREATE TABLE IF NOT EXISTS foo(id int);" +
+                "CREATE TABLE IF NOT EXISTS bar(id int);");
+
+        final RuleKey rule = RULE_ONE_MIGRATION_PER_FILE;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("Use one migration per file",
                 fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());

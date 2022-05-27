@@ -25,6 +25,7 @@ import org.sonar.api.utils.log.Loggers;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.REPOSITORY;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ONE_MIGRATION_PER_FILE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
 
 public class PostgresSqlSensor implements Sensor {
@@ -143,6 +144,11 @@ public class PostgresSqlSensor implements Sensor {
     private void parseTree(SensorContext context, PostgreSqlFile file, ParseResult result) {
         final Checks<VisitorCheck> checks = checkFactory.<VisitorCheck>create(REPOSITORY)
                 .addAnnotatedChecks((Iterable<VisitorCheck>) PostgresSqlRulesDefinition.allChecks());
+
+        if (result.getStmtsCount() > 1){
+            final TextRange textRange = file.convertAbsoluteOffsetToLine(0);
+            newIssue(context, file,"Use one migration per file", textRange, RULE_ONE_MIGRATION_PER_FILE);
+        }
 
         result.getStmtsList().forEach(stmt -> {
             final TextRange textRange = parseTextRange(file, stmt);
