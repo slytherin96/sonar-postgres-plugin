@@ -150,6 +150,8 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file26.sql", "ALTER TABLE IF EXISTS people ALTER COLUMN height_in DROP EXPRESSION;");
         createFile(contextTester, "file27.sql", "CREATE EXTENSION hstore SCHEMA addons;");
         createFile(contextTester, "file28.sql", "DROP EXTENSION foo, bar;");
+        createFile(contextTester, "file29.sql", "CREATE STATISTICS foo_stats(dependencies) ON id1, id2 FROM foo;");
+        createFile(contextTester, "file30.sql", "DROP STATISTICS foo_stats, bar_stats;");
 
         final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -243,7 +245,13 @@ class PostgresSqlSensorTest {
         assertEquals("Add IF EXISTS to DROP EXTENSION foo, bar",
                 fileMap.get(":file28.sql").primaryLocation().message());
 
-        assertEquals(28, fileMap.size());
+        assertEquals("Add IF NOT EXISTS to CREATE STATISTICS foo_stats",
+                fileMap.get(":file29.sql").primaryLocation().message());
+
+        assertEquals("Add IF EXISTS to DROP STATISTICS foo_stats, bar_stats",
+                fileMap.get(":file30.sql").primaryLocation().message());
+
+        assertEquals(30, fileMap.size());
     }
 
     @Test

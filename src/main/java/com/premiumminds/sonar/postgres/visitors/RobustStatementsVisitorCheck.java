@@ -13,6 +13,7 @@ import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
+import com.premiumminds.sonar.postgres.protobuf.CreateStatsStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateTableAsStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
@@ -83,6 +84,9 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_EXTENSION:
                     newIssue("Add IF EXISTS to DROP EXTENSION " + String.join(", ", schemas));
+                    break;
+                case OBJECT_STATISTIC_EXT:
+                    newIssue("Add IF EXISTS to DROP STATISTICS " + String.join(", ", names));
                     break;
                 default:
                     newIssue("Add IF EXISTS");
@@ -171,6 +175,15 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue("Add IF NOT EXISTS to CREATE SCHEMA " + createSchemaStmt.getSchemaname());
         }
         super.visit(createSchemaStmt);
+    }
+
+    @Override
+    public void visit(CreateStatsStmt createStatsStmt) {
+        if (!createStatsStmt.getIfNotExists()){
+            final List<String> names = createStatsStmt.getDefnamesList().stream().map(node -> node.getString().getStr()).collect(Collectors.toList());
+            newIssue("Add IF NOT EXISTS to CREATE STATISTICS " + String.join(", ", names) );
+        }
+        super.visit(createStatsStmt);
     }
 
     @Override
