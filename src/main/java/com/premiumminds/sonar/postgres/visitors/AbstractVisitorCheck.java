@@ -6,6 +6,7 @@ import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableCmd;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
+import com.premiumminds.sonar.postgres.protobuf.ClusterStmt;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
@@ -18,6 +19,7 @@ import com.premiumminds.sonar.postgres.protobuf.DoStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
+import com.premiumminds.sonar.postgres.protobuf.Node;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
@@ -178,47 +180,55 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(ClusterStmt clusterStmt) {
+
+    }
+
+    @Override
     public void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt) {
         this.context = context;
         this.file = file;
         this.textRange = textRange;
 
-        if (rawStmt.getStmt().hasCreateStmt()) {
-            visit(rawStmt.getStmt().getCreateStmt());
-        } else if (rawStmt.getStmt().hasIndexStmt()){
-            visit(rawStmt.getStmt().getIndexStmt());
-        } else if (rawStmt.getStmt().hasDropStmt()){
-            visit(rawStmt.getStmt().getDropStmt());
-        } else if (rawStmt.getStmt().hasDropdbStmt()){
-            visit(rawStmt.getStmt().getDropdbStmt());
-        } else if (rawStmt.getStmt().hasAlterTableStmt()){
-            visit(rawStmt.getStmt().getAlterTableStmt());
-        } else if (rawStmt.getStmt().hasRenameStmt()){
-            visit(rawStmt.getStmt().getRenameStmt());
-        } else if (rawStmt.getStmt().hasCreateSeqStmt()){
-            visit(rawStmt.getStmt().getCreateSeqStmt());
-        } else if (rawStmt.getStmt().hasAlterSeqStmt()){
-            visit(rawStmt.getStmt().getAlterSeqStmt());
-        } else if (rawStmt.getStmt().hasCreateSchemaStmt()){
-            visit(rawStmt.getStmt().getCreateSchemaStmt());
-        } else if (rawStmt.getStmt().hasAlterDomainStmt()) {
-            visit(rawStmt.getStmt().getAlterDomainStmt());
-        } else if (rawStmt.getStmt().hasCreateTableAsStmt()){
-            visit(rawStmt.getStmt().getCreateTableAsStmt());
-        } else if (rawStmt.getStmt().hasAlterEnumStmt()){
-            visit(rawStmt.getStmt().getAlterEnumStmt());
-        } else if (rawStmt.getStmt().hasReindexStmt()){
-            visit(rawStmt.getStmt().getReindexStmt());
-        } else if (rawStmt.getStmt().hasVacuumStmt()){
-            visit(rawStmt.getStmt().getVacuumStmt());
-        } else if (rawStmt.getStmt().hasCreateExtensionStmt()){
-            visit(rawStmt.getStmt().getCreateExtensionStmt());
-        } else if (rawStmt.getStmt().hasRefreshMatViewStmt()){
-            visit(rawStmt.getStmt().getRefreshMatViewStmt());
-        } else if (rawStmt.getStmt().hasDoStmt()){
-            visit(rawStmt.getStmt().getDoStmt());
-        } else if (rawStmt.getStmt().hasCreateStatsStmt()){
-            visit(rawStmt.getStmt().getCreateStatsStmt());
+        final Node stmt = rawStmt.getStmt();
+        if (stmt.hasCreateStmt()) {
+            visit(stmt.getCreateStmt());
+        } else if (stmt.hasIndexStmt()){
+            visit(stmt.getIndexStmt());
+        } else if (stmt.hasDropStmt()){
+            visit(stmt.getDropStmt());
+        } else if (stmt.hasDropdbStmt()){
+            visit(stmt.getDropdbStmt());
+        } else if (stmt.hasAlterTableStmt()){
+            visit(stmt.getAlterTableStmt());
+        } else if (stmt.hasRenameStmt()){
+            visit(stmt.getRenameStmt());
+        } else if (stmt.hasCreateSeqStmt()){
+            visit(stmt.getCreateSeqStmt());
+        } else if (stmt.hasAlterSeqStmt()){
+            visit(stmt.getAlterSeqStmt());
+        } else if (stmt.hasCreateSchemaStmt()){
+            visit(stmt.getCreateSchemaStmt());
+        } else if (stmt.hasAlterDomainStmt()) {
+            visit(stmt.getAlterDomainStmt());
+        } else if (stmt.hasCreateTableAsStmt()){
+            visit(stmt.getCreateTableAsStmt());
+        } else if (stmt.hasAlterEnumStmt()){
+            visit(stmt.getAlterEnumStmt());
+        } else if (stmt.hasReindexStmt()){
+            visit(stmt.getReindexStmt());
+        } else if (stmt.hasVacuumStmt()){
+            visit(stmt.getVacuumStmt());
+        } else if (stmt.hasCreateExtensionStmt()){
+            visit(stmt.getCreateExtensionStmt());
+        } else if (stmt.hasRefreshMatViewStmt()){
+            visit(stmt.getRefreshMatViewStmt());
+        } else if (stmt.hasDoStmt()){
+            visit(stmt.getDoStmt());
+        } else if (stmt.hasCreateStatsStmt()){
+            visit(stmt.getCreateStatsStmt());
+        } else if (stmt.hasClusterStmt()){
+            visit(stmt.getClusterStmt());
         }
     }
 

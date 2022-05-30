@@ -9,6 +9,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_AD
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_DROP_DATABASE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CLUSTER;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONCURRENTLY;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_DO;
@@ -49,6 +50,7 @@ public class PostgresSqlQualityProfile implements BuiltInQualityProfilesDefiniti
         activateRule(profile, RULE_IDENTIFIER_MAX_LENGTH);
         activateRule(profile, RULE_DROP_CONSTRAINT_DROPS_INDEX);
         activateRule(profile, RULE_VACUUM_FULL);
+        activateRule(profile, RULE_CLUSTER);
         activateRule(profile, RULE_PREFER_IDENTITY_FIELD);
         activateRule(profile, RULE_ONE_MIGRATION_PER_FILE);
         activateRule(profile, RULE_DISALLOWED_DO);

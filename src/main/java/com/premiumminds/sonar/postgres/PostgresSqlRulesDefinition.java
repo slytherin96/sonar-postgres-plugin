@@ -3,13 +3,13 @@ package com.premiumminds.sonar.postgres;
 import java.util.Arrays;
 import java.util.List;
 
-import com.premiumminds.sonar.postgres.visitors.AbstractVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.AddFieldWithDefaultVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.AddForeignKeyVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.AddingSerialPrimaryKeyfieldvisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.BanCharFieldVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.BanDropDatabaseVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ChangingColumnTypeVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.ClusterVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DisallowedDoVisitorCheck;
@@ -50,6 +50,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_IDENTIFIER_MAX_LENGTH = RuleKey.of(REPOSITORY, "identifier-max-length");
     public static final RuleKey RULE_DROP_CONSTRAINT_DROPS_INDEX = RuleKey.of(REPOSITORY, "drop-constraint-drops-index");
     public static final RuleKey RULE_VACUUM_FULL = RuleKey.of(REPOSITORY, "vacuum-full");
+    public static final RuleKey RULE_CLUSTER = RuleKey.of(REPOSITORY, "cluster");
     public static final RuleKey RULE_PREFER_IDENTITY_FIELD = RuleKey.of(REPOSITORY, "prefer-identity-field");
     public static final RuleKey RULE_ONE_MIGRATION_PER_FILE = RuleKey.of(REPOSITORY, "one-migration-per-file");
     public static final RuleKey RULE_DISALLOWED_DO = RuleKey.of(REPOSITORY, "disallowed-do");
@@ -150,18 +151,23 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("vacuum-full.md"));
 
+        repository.createRule(RULE_CLUSTER.rule())
+                .setName("cluster rule")
+                .setType(RuleType.BUG)
+                .setMarkdownDescription(getClass().getResource("cluster.md"));
+
         repository.createRule(RULE_PREFER_IDENTITY_FIELD.rule())
                 .setName("prefer-identity-field rule")
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("prefer-identity-field.md"));
 
         repository.createRule(RULE_ONE_MIGRATION_PER_FILE.rule())
-                .setName("one-migration-per-file")
+                .setName("one-migration-per-file rule")
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("one-migration-per-file.md"));
 
         repository.createRule(RULE_DISALLOWED_DO.rule())
-                .setName("disallowed-do")
+                .setName("disallowed-do rule")
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("disallowed-do.md"));
 
@@ -186,6 +192,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new BanCharFieldVisitorCheck(),
                 new PreferTextFieldVisitorCheck(),
                 new VacuumFullVisitorCheck(),
+                new ClusterVisitorCheck(),
                 new PreferIdentityVisitorCheck(),
                 new DisallowedDoVisitorCheck());
     }

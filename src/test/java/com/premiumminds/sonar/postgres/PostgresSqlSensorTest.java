@@ -25,6 +25,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_AD
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_DROP_DATABASE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CLUSTER;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONCURRENTLY;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_DO;
@@ -315,6 +316,24 @@ class PostgresSqlSensorTest {
         final Map<String, Issue> fileMap = issueMap.get(rule);
 
         assertEquals("VACUUM FULL exclusively locks the table while running",
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    public void cluster() {
+        createFile(contextTester, "file1.sql", "CLUSTER foo;");
+
+        final RuleKey rule = RULE_CLUSTER;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("CLUSTER exclusively locks the table while running",
                 fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());
