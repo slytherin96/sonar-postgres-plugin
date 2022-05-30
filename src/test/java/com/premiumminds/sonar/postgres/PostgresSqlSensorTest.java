@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -28,6 +27,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BA
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONCURRENTLY;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONSTRAINT_MISSING_NOT_VALID;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_DO;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DISALLOWED_UNIQUE_CONSTRAINT;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_CONSTRAINT_DROPS_INDEX;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
@@ -41,6 +41,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_RE
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SETTING_NOT_NULLABLE_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_VACUUM_FULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PostgresSqlSensorTest {
 
@@ -50,25 +51,6 @@ class PostgresSqlSensorTest {
     void before(){
         final Path file = Paths.get("");
         contextTester = SensorContextTester.create(file);
-    }
-
-    @Disabled( value = "PL/pgSQL is not supported yet")
-    @Test
-    public void plpgsqlNotSupported() {
-        createFile(contextTester, "file1.sql", "DO $$begin create table foo (id int); END;$$");
-
-        final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
-        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
-        sensor.execute(contextTester);
-
-        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
-
-        final Map<String, Issue> fileMap = issueMap.get(rule);
-
-        assertEquals("Add IF NOT EXISTS to CREATE TABLE foo",
-                fileMap.get(":file1.sql").primaryLocation().message());
-
-        assertEquals(1, issueMap.size());
     }
 
     @Test
@@ -95,14 +77,17 @@ class PostgresSqlSensorTest {
 
         createFile(contextTester, "file1.sql", "SELECT 1;\r\nSELECT 2;\r\nSELECT 3;");
         createFile(contextTester, "file2.sql", "SELECT 'Évora 1';\nSELECT 'Évora 2';\nSELECT 'Évora 3';");
-        createFile(contextTester, "file3.sql", "INSERT INTO foo VALUESXX(\"éééééééééééé\"), (\"a\");");
+        createFile(contextTester, "file3.sql", "INSERT INTO foo VALUES (\"éééééééééééé\"), (\"a\");");
 
-        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_PARSE_ERROR);
+        final RuleKey rule = RULE_PARSE_ERROR;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
         sensor.execute(contextTester);
 
         final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
 
-        assertEquals(1, issueMap.size());
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertNull(fileMap);
     }
 
     @Test
@@ -621,6 +606,32 @@ class PostgresSqlSensorTest {
         final Map<String, Issue> fileMap = issueMap.get(rule);
 
         assertEquals("Use one migration per file",
+                fileMap.get(":file1.sql").primaryLocation().message());
+
+        assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    public void disallowedDo() {
+        createFile(contextTester, "file1.sql", "DO\n" +
+                "$$\n" +
+                "  BEGIN\n" +
+                "    ALTER TABLE foo\n" +
+                "      ADD CONSTRAINT foo_fk FOREIGN KEY (bar_id) REFERENCES bar (id);\n" +
+                "    EXCEPTION WHEN duplicate_object\n" +
+                "   THEN RAISE NOTICE 'Table constraint foo_fk already exists';\n" +
+                "  END;\n" +
+                "$$;");
+
+        final RuleKey rule = RULE_DISALLOWED_DO;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("DO commands can not be review by this plugin.",
                 fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());

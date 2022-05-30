@@ -13,6 +13,7 @@ import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateTableAsStmt;
+import com.premiumminds.sonar.postgres.protobuf.DoStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
@@ -166,6 +167,11 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(DoStmt doStmt){
+
+    }
+
+    @Override
     public void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt) {
         this.context = context;
         this.file = file;
@@ -203,6 +209,8 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
             visit(rawStmt.getStmt().getCreateExtensionStmt());
         } else if (rawStmt.getStmt().hasRefreshMatViewStmt()){
             visit(rawStmt.getStmt().getRefreshMatViewStmt());
+        } else if (rawStmt.getStmt().hasDoStmt()){
+            visit(rawStmt.getStmt().getDoStmt());
         }
     }
 

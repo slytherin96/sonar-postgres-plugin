@@ -12,6 +12,7 @@ import com.premiumminds.sonar.postgres.visitors.BanDropDatabaseVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ChangingColumnTypeVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.DisallowedDoVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.PreferIdentityVisitorCheck;
@@ -51,6 +52,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_VACUUM_FULL = RuleKey.of(REPOSITORY, "vacuum-full");
     public static final RuleKey RULE_PREFER_IDENTITY_FIELD = RuleKey.of(REPOSITORY, "prefer-identity-field");
     public static final RuleKey RULE_ONE_MIGRATION_PER_FILE = RuleKey.of(REPOSITORY, "one-migration-per-file");
+    public static final RuleKey RULE_DISALLOWED_DO = RuleKey.of(REPOSITORY, "disallowed-do");
 
     @Override
     public void define(Context context) {
@@ -158,6 +160,11 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("one-migration-per-file.md"));
 
+        repository.createRule(RULE_DISALLOWED_DO.rule())
+                .setName("disallowed-do")
+                .setType(RuleType.BUG)
+                .setMarkdownDescription(getClass().getResource("disallowed-do.md"));
+
         repository.done();
     }
 
@@ -179,6 +186,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new BanCharFieldVisitorCheck(),
                 new PreferTextFieldVisitorCheck(),
                 new VacuumFullVisitorCheck(),
-                new PreferIdentityVisitorCheck());
+                new PreferIdentityVisitorCheck(),
+                new DisallowedDoVisitorCheck());
     }
 }
