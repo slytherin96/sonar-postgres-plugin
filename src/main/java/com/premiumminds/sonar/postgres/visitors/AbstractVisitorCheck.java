@@ -25,6 +25,7 @@ import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
+import com.premiumminds.sonar.postgres.protobuf.VariableSetStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -185,6 +186,11 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(VariableSetStmt variableSetStmt) {
+
+    }
+
+    @Override
     public void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt) {
         this.context = context;
         this.file = file;
@@ -229,6 +235,8 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
             visit(stmt.getCreateStatsStmt());
         } else if (stmt.hasClusterStmt()){
             visit(stmt.getClusterStmt());
+        } else if (stmt.hasVariableSetStmt()){
+            visit(stmt.getVariableSetStmt());
         }
     }
 

@@ -23,6 +23,7 @@ import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
 import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
+import com.premiumminds.sonar.postgres.protobuf.VariableSetStmt;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -54,6 +55,7 @@ public interface VisitorCheck {
     void visit(DoStmt doStmt);
     void visit(CreateStatsStmt createStatsStmt);
     void visit(ClusterStmt clusterStmt);
+    void visit(VariableSetStmt variableSetStmt);
 
     void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt);
 }
