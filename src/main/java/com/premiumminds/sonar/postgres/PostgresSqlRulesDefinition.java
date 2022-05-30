@@ -50,7 +50,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_DROP_CONSTRAINT_DROPS_INDEX = RuleKey.of(REPOSITORY, "drop-constraint-drops-index");
     public static final RuleKey RULE_VACUUM_FULL = RuleKey.of(REPOSITORY, "vacuum-full");
     public static final RuleKey RULE_PREFER_IDENTITY_FIELD = RuleKey.of(REPOSITORY, "prefer-identity-field");
-    public static final RuleKey RULE_ONE_MIGRATION_PER_FILE = RuleKey.of(REPOSITORY, "one migration-per-file");
+    public static final RuleKey RULE_ONE_MIGRATION_PER_FILE = RuleKey.of(REPOSITORY, "one-migration-per-file");
 
     @Override
     public void define(Context context) {
@@ -154,9 +154,9 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setMarkdownDescription(getClass().getResource("prefer-identity-field.md"));
 
         repository.createRule(RULE_ONE_MIGRATION_PER_FILE.rule())
-                .setName("one migration-per-file")
+                .setName("one-migration-per-file")
                 .setType(RuleType.BUG)
-                .setMarkdownDescription(getClass().getResource("one migration-per-file.md"));
+                .setMarkdownDescription(getClass().getResource("one-migration-per-file.md"));
 
         repository.done();
     }
