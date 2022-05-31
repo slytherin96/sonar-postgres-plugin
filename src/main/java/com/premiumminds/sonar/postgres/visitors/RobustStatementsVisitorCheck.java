@@ -20,9 +20,6 @@ import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import com.premiumminds.sonar.postgres.protobuf.ObjectType;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 
@@ -235,30 +232,30 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         final AlterTableType subtype = alterTableCmd.getSubtype();
         switch (subtype){
             case AT_DropConstraint:
-                dropConstraint(getContext(), getFile(), getTextRange(), alterTableCmd);
+                dropConstraint(alterTableCmd);
                 break;
             case AT_DropColumn:
-                dropColumn(getContext(), getFile(), getTextRange(), alterTableCmd);
+                dropColumn(alterTableCmd);
                 break;
             case AT_AddColumn:
-                addColumn(getContext(), getFile(), getTextRange(), alterTableCmd);
+                addColumn(alterTableCmd);
                 break;
             case AT_DropExpression:
-                dropExpression(getContext(), getFile(), getTextRange(), alterTableCmd);
+                dropExpression(alterTableCmd);
                 break;
         }
 
         super.visit(alterTableCmd);
     }
 
-    private void dropExpression(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
+    private void dropExpression(AlterTableCmd alterTableCmd) {
         final String name = alterTableCmd.getName();
         if(!alterTableCmd.getMissingOk()){
             newIssue("Add IF EXISTS to DROP EXPRESSION " + name);
         }
     }
 
-    private void dropConstraint(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
+    private void dropConstraint(AlterTableCmd alterTableCmd) {
         final String name = alterTableCmd.getName();
 
         if(!alterTableCmd.getMissingOk()){
@@ -266,7 +263,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         }
     }
 
-    private void dropColumn(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
+    private void dropColumn(AlterTableCmd alterTableCmd) {
         final String name = alterTableCmd.getName();
 
         if(!alterTableCmd.getMissingOk()){
@@ -274,7 +271,7 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
         }
     }
 
-    private void addColumn(SensorContext context, InputFile file, TextRange textRange, AlterTableCmd alterTableCmd) {
+    private void addColumn(AlterTableCmd alterTableCmd) {
         final ColumnDef columnDef = alterTableCmd.getDef().getColumnDef();
         final String colname = columnDef.getColname();
 

@@ -15,6 +15,7 @@ import com.premiumminds.sonar.postgres.visitors.ConstraintMissingNotValidVisitor
 import com.premiumminds.sonar.postgres.visitors.DisallowedDoVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.OneMigrationPerFileVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.PreferIdentityVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.PreferTextFieldVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
@@ -194,6 +195,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new VacuumFullVisitorCheck(),
                 new ClusterVisitorCheck(),
                 new PreferIdentityVisitorCheck(),
-                new DisallowedDoVisitorCheck());
+                new DisallowedDoVisitorCheck(),
+                new OneMigrationPerFileVisitorCheck());
     }
 }

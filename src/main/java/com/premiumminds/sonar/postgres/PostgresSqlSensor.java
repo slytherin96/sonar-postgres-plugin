@@ -5,7 +5,6 @@ import com.premiumminds.sonar.postgres.libpg_query.PGQueryLibrary;
 import com.premiumminds.sonar.postgres.libpg_query.PgQueryProtobufParseResult;
 import com.premiumminds.sonar.postgres.libpg_query.PgQueryScanResult;
 import com.premiumminds.sonar.postgres.protobuf.ParseResult;
-import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.ScanResult;
 import com.premiumminds.sonar.postgres.protobuf.Token;
 import com.premiumminds.sonar.postgres.visitors.VisitorCheck;
@@ -25,7 +24,6 @@ import org.sonar.api.utils.log.Loggers;
 
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.REPOSITORY;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
-import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ONE_MIGRATION_PER_FILE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
 
 public class PostgresSqlSensor implements Sensor {
@@ -145,27 +143,6 @@ public class PostgresSqlSensor implements Sensor {
         final Checks<VisitorCheck> checks = checkFactory.<VisitorCheck>create(REPOSITORY)
                 .addAnnotatedChecks((Iterable<VisitorCheck>) PostgresSqlRulesDefinition.allChecks());
 
-        if (result.getStmtsCount() > 1){
-            final TextRange textRange = file.convertAbsoluteOffsetToLine(0);
-            newIssue(context, file,"Use one migration per file", textRange, RULE_ONE_MIGRATION_PER_FILE);
-        }
-
-        result.getStmtsList().forEach(stmt -> {
-            final TextRange textRange = parseTextRange(file, stmt);
-
-            checks.all().forEach(check -> check.analyze(context, file.getInputFile(), textRange, stmt));
-        });
+        checks.all().forEach(check -> check.analyze(context, file, result.getStmtsList()));
     }
-
-    private TextRange parseTextRange(PostgreSqlFile file, RawStmt stmt) {
-        final int stmtLocation = stmt.getStmtLocation();
-        final int stmtLen;
-        if (stmt.getStmtLen() != 0) {
-            stmtLen = stmt.getStmtLen();
-        } else {
-            stmtLen = file.contentsLength() - stmtLocation - 1;
-        }
-        return file.convertAbsoluteOffsetsToTextRange(stmtLocation, stmtLocation + stmtLen);
-    }
-
 }

@@ -1,5 +1,8 @@
 package com.premiumminds.sonar.postgres.visitors;
 
+import java.util.List;
+
+import com.premiumminds.sonar.postgres.PostgreSqlFile;
 import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterEnumStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
@@ -36,7 +39,7 @@ import org.sonar.api.rule.RuleKey;
 public abstract class AbstractVisitorCheck implements VisitorCheck {
 
     private SensorContext context;
-    private InputFile file;
+    private PostgreSqlFile file;
     private TextRange textRange;
 
     @Override
@@ -191,10 +194,15 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
-    public void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt) {
+    public void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements){
         this.context = context;
         this.file = file;
-        this.textRange = textRange;
+        statements.forEach(this::analyze);
+    }
+
+    @Override
+    public void analyze(RawStmt rawStmt) {
+        this.textRange = parseTextRange(file, rawStmt);
 
         final Node stmt = rawStmt.getStmt();
         if (stmt.hasCreateStmt()) {
@@ -245,7 +253,7 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     protected InputFile getFile() {
-        return file;
+        return file.getInputFile();
     }
 
     protected TextRange getTextRange() {
@@ -263,5 +271,16 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
                 .message(message);
         newIssue.at(primaryLocation);
         newIssue.save();
+    }
+
+    private TextRange parseTextRange(PostgreSqlFile file, RawStmt stmt) {
+        final int stmtLocation = stmt.getStmtLocation();
+        final int stmtLen;
+        if (stmt.getStmtLen() != 0) {
+            stmtLen = stmt.getStmtLen();
+        } else {
+            stmtLen = file.contentsLength() - stmtLocation - 1;
+        }
+        return file.convertAbsoluteOffsetsToTextRange(stmtLocation, stmtLocation + stmtLen);
     }
 }

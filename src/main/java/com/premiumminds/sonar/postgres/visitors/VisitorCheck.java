@@ -1,5 +1,8 @@
 package com.premiumminds.sonar.postgres.visitors;
 
+import java.util.List;
+
+import com.premiumminds.sonar.postgres.PostgreSqlFile;
 import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterEnumStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterSeqStmt;
@@ -57,5 +60,6 @@ public interface VisitorCheck {
     void visit(ClusterStmt clusterStmt);
     void visit(VariableSetStmt variableSetStmt);
 
-    void analyze(SensorContext context, InputFile file, TextRange textRange, RawStmt rawStmt);
+    void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements);
+    void analyze(RawStmt rawStmt);
 }
