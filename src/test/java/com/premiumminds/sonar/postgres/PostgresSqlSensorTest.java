@@ -153,6 +153,7 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file28.sql", "DROP EXTENSION foo, bar;");
         createFile(contextTester, "file29.sql", "CREATE STATISTICS foo_stats(dependencies) ON id1, id2 FROM foo;");
         createFile(contextTester, "file30.sql", "DROP STATISTICS foo_stats, bar_stats;");
+        createFile(contextTester, "file31.sql", "CREATE FUNCTION add(integer, integer) RETURNS integer AS 'select $1 + $2;' LANGUAGE SQL;");
 
         final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -252,7 +253,10 @@ class PostgresSqlSensorTest {
         assertEquals("Add IF EXISTS to DROP STATISTICS foo_stats, bar_stats",
                 fileMap.get(":file30.sql").primaryLocation().message());
 
-        assertEquals(30, fileMap.size());
+        assertEquals("Add OR REPLACE to add",
+                fileMap.get(":file31.sql").primaryLocation().message());
+
+        assertEquals(31, fileMap.size());
     }
 
     @Test

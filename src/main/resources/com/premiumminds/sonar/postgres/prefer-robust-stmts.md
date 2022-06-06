@@ -102,6 +102,16 @@ CREATE MATERIALIZED VIEW foo AS SELECT 1;
 CREATE MATERIALIZED VIEW IF NOT EXISTS foo AS SELECT 1;
 ``
 
+=== add function
+
+``sql
+-- instead of:
+CREATE FUNCTION add(integer, integer) RETURNS integer AS 'select $1 + $2;' LANGUAGE SQL;
+
+-- use:
+CREATE OR REPLACE FUNCTION add(integer, integer) RETURNS integer AS 'select $1 + $2;' LANGUAGE SQL;
+``
+
 === alter sequence
 
 ``sql

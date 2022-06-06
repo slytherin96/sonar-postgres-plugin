@@ -11,6 +11,7 @@ import com.premiumminds.sonar.postgres.protobuf.AlterTableStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterTableType;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
+import com.premiumminds.sonar.postgres.protobuf.CreateFunctionStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStatsStmt;
@@ -225,6 +226,16 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
             newIssue("Add IF NOT EXISTS to CREATE EXTENSION " + createExtensionStmt.getExtname());
         }
         super.visit(createExtensionStmt);
+    }
+
+    @Override
+    public void visit(CreateFunctionStmt createFunctionStmt) {
+
+        if (!createFunctionStmt.getReplace()){
+            final List<String> names = createFunctionStmt.getFuncnameList().stream().map(x -> x.getString().getStr()).collect(Collectors.toList());
+            newIssue("Add OR REPLACE to " + String.join(",", names));
+        }
+        super.visit(createFunctionStmt);
     }
 
     @Override

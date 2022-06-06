@@ -12,6 +12,7 @@ import com.premiumminds.sonar.postgres.protobuf.ClusterStmt;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
+import com.premiumminds.sonar.postgres.protobuf.CreateFunctionStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStatsStmt;
@@ -59,7 +60,9 @@ public interface VisitorCheck {
     void visit(CreateStatsStmt createStatsStmt);
     void visit(ClusterStmt clusterStmt);
     void visit(VariableSetStmt variableSetStmt);
+    void visit(CreateFunctionStmt createFunctionStmt);
 
     void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements);
+
     void analyze(RawStmt rawStmt);
 }

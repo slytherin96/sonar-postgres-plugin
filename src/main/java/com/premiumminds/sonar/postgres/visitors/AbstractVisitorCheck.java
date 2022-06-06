@@ -13,6 +13,7 @@ import com.premiumminds.sonar.postgres.protobuf.ClusterStmt;
 import com.premiumminds.sonar.postgres.protobuf.ColumnDef;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import com.premiumminds.sonar.postgres.protobuf.CreateExtensionStmt;
+import com.premiumminds.sonar.postgres.protobuf.CreateFunctionStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSchemaStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStatsStmt;
@@ -194,6 +195,11 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(CreateFunctionStmt createFunctionStmt) {
+
+    }
+
+    @Override
     public void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements){
         this.context = context;
         this.file = file;
@@ -245,6 +251,8 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
             visit(stmt.getClusterStmt());
         } else if (stmt.hasVariableSetStmt()){
             visit(stmt.getVariableSetStmt());
+        } else if (stmt.hasCreateFunctionStmt()){
+            visit(stmt.getCreateFunctionStmt());
         }
     }
 
