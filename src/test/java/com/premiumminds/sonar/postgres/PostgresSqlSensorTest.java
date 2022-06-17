@@ -43,6 +43,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SE
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_VACUUM_FULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.sonar.api.measures.CoreMetrics.NCLOC;
 
 class PostgresSqlSensorTest {
 
@@ -89,6 +90,10 @@ class PostgresSqlSensorTest {
         final Map<String, Issue> fileMap = issueMap.get(rule);
 
         assertNull(fileMap);
+
+        assertEquals(3, contextTester.measure(":file1.sql", NCLOC).value());
+        assertEquals(3, contextTester.measure(":file2.sql", NCLOC).value());
+        assertEquals(1, contextTester.measure(":file3.sql", NCLOC).value());
     }
 
     @Test

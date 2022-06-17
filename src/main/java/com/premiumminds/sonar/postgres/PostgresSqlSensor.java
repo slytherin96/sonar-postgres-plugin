@@ -18,6 +18,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -56,6 +57,8 @@ public class PostgresSqlSensor implements Sensor {
             if (context.isCancelled()) {
                 LOGGER.warn("Analysis cancelled");
             }
+
+            context.<Integer>newMeasure().on(file).withValue(file.lines()).forMetric(CoreMetrics.NCLOC).save();
 
             try {
                 PostgreSqlFile postgreSqlFile = new PostgreSqlFile(file);
