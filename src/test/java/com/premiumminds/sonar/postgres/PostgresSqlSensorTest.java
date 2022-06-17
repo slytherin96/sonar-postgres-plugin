@@ -627,6 +627,18 @@ class PostgresSqlSensorTest {
     public void oneMigrationPerFile() {
         createFile(contextTester, "file1.sql", "CREATE TABLE IF NOT EXISTS foo(id int);" +
                 "CREATE TABLE IF NOT EXISTS bar(id int);");
+        createFile(contextTester, "file2.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
+                "CREATE TABLE IF NOT EXISTS bar(id int);");
+        createFile(contextTester, "file3.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
+                "ALTER TABLE IF EXISTS bar DROP COLUMN baz;");
+        createFile(contextTester, "file4.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
+                "DROP TABLE IF EXISTS bar;");
+        createFile(contextTester, "file5.sql", "DROP TABLE IF EXISTS foo;" +
+                "DROP TABLE IF EXISTS bar;");
+        createFile(contextTester, "file6.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;" +
+                "ALTER TABLE IF EXISTS foo VALIDATE CONSTRAINT fk_bar;");
+        createFile(contextTester, "file7.sql", "SET statement_timeout = 1000; " +
+                "CREATE TABLE IF NOT EXISTS foo(id int);");
 
         final RuleKey rule = RULE_ONE_MIGRATION_PER_FILE;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -638,8 +650,18 @@ class PostgresSqlSensorTest {
 
         assertEquals("Use one migration per file",
                 fileMap.get(":file1.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                fileMap.get(":file2.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                fileMap.get(":file3.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                fileMap.get(":file4.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                fileMap.get(":file5.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                fileMap.get(":file6.sql").primaryLocation().message());
 
-        assertEquals(1, fileMap.size());
+        assertEquals(6, fileMap.size());
     }
 
     @Test
