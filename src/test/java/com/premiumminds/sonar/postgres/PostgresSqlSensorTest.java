@@ -644,6 +644,10 @@ class PostgresSqlSensorTest {
                 "ALTER TABLE IF EXISTS foo VALIDATE CONSTRAINT fk_bar;");
         createFile(contextTester, "file7.sql", "SET statement_timeout = 1000; " +
                 "CREATE TABLE IF NOT EXISTS foo(id int);");
+        createFile(contextTester, "file8.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
+            "create index concurrently idx1 on foo (id);");
+        createFile(contextTester, "file9.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
+            "drop index concurrently idx1;");
 
         final RuleKey rule = RULE_ONE_MIGRATION_PER_FILE;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -665,8 +669,12 @@ class PostgresSqlSensorTest {
                 fileMap.get(":file5.sql").primaryLocation().message());
         assertEquals("Use one migration per file",
                 fileMap.get(":file6.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                     fileMap.get(":file8.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                     fileMap.get(":file9.sql").primaryLocation().message());
 
-        assertEquals(6, fileMap.size());
+        assertEquals(8, fileMap.size());
     }
 
     @Test
