@@ -457,6 +457,9 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS bar integer DEFAULT random();");
         createFile(contextTester, "file2-ok.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT -1;");
         createFile(contextTester, "file3-ok.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT random();");
+        createFile(contextTester, "file4-ok.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS bar text DEFAULT VERSION();");
+        createFile(contextTester, "file5-ok.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS bar integer DEFAULT floor(1.1);");
+        createFile(contextTester, "file6.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS bar_floor_random integer DEFAULT floor(floor(random()));");
 
         final RuleKey rule = RULE_ADD_FIELD_WITH_DEFAULT;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -469,7 +472,10 @@ class PostgresSqlSensorTest {
         assertEquals("Adding a field with a VOLATILE default can cause table rewrites, which will take an ACCESS EXCLUSIVE lock on the table, blocking reads / writes while the statement is running.",
                 fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, fileMap.size());
+        assertEquals("Adding a field with a VOLATILE default can cause table rewrites, which will take an ACCESS EXCLUSIVE lock on the table, blocking reads / writes while the statement is running.",
+                     fileMap.get(":file6.sql").primaryLocation().message());
+
+        assertEquals(2, fileMap.size());
     }
 
     @Test
