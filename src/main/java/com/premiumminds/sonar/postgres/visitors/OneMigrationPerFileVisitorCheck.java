@@ -1,5 +1,6 @@
 package com.premiumminds.sonar.postgres.visitors;
 
+import com.premiumminds.sonar.postgres.protobuf.DoStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class OneMigrationPerFileVisitorCheck extends AbstractVisitorCheck {
     private int createStmtCounter = 0;
     private int alterTableCmdCounter = 0;
     private int dropStmtCounter = 0;
+    private int doStmtCounter = 0;
 
     @Override
     public void visit(CreateStmt createStmt) {
@@ -46,12 +48,16 @@ public class OneMigrationPerFileVisitorCheck extends AbstractVisitorCheck {
         createIndexCounter++;
     }
 
-
+    @Override
+    public void visit(final DoStmt doStmt) {
+        super.visit(doStmt);
+        doStmtCounter++;
+    }
 
     @Override
     public void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements) {
         super.analyze(context, file, statements);
-        if (createStmtCounter + alterTableCmdCounter + dropStmtCounter + createIndexCounter > 1){
+        if (createStmtCounter + alterTableCmdCounter + dropStmtCounter + createIndexCounter + doStmtCounter > 1){
             newIssue("Use one migration per file");
         }
     }

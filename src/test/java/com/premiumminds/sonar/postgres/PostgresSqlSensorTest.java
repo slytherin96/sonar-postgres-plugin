@@ -648,6 +648,7 @@ class PostgresSqlSensorTest {
             "create index concurrently idx1 on foo (id);");
         createFile(contextTester, "file9.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
             "drop index concurrently idx1;");
+        createFile(contextTester, "file10.sql", "DO $$ BEGIN RAISE NOTICE 'foo'; END; $$; DO $$ BEGIN RAISE NOTICE 'bar'; END; $$;");
 
         final RuleKey rule = RULE_ONE_MIGRATION_PER_FILE;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -673,8 +674,10 @@ class PostgresSqlSensorTest {
                      fileMap.get(":file8.sql").primaryLocation().message());
         assertEquals("Use one migration per file",
                      fileMap.get(":file9.sql").primaryLocation().message());
+        assertEquals("Use one migration per file",
+                     fileMap.get(":file10.sql").primaryLocation().message());
 
-        assertEquals(8, fileMap.size());
+        assertEquals(9, fileMap.size());
     }
 
     @Test
