@@ -497,6 +497,9 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ADD PRIMARY KEY (id);");
         createFile(contextTester, "file2-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_pk_idx ON foo (id); " +
                                                                 "ALTER TABLE IF EXISTS foo ADD CONSTRAINT foo_pk PRIMARY KEY USING INDEX foo_pk_idx;");
+        createFile(contextTester, "file3.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS id serial PRIMARY KEY;");
+        createFile(contextTester, "file4-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_pk_idx ON foo (id); " +
+                                                                "ALTER TABLE IF EXISTS foo ADD PRIMARY KEY USING INDEX foo_pk_idx;");
 
         final RuleKey rule = RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -509,7 +512,10 @@ class PostgresSqlSensorTest {
         assertEquals("If PRIMARY KEY is specified, and the index's columns are not already marked NOT NULL, then this command will attempt to do ALTER COLUMN SET NOT NULL against each such column. That requires a full table scan to verify the column(s) contain no nulls. In all other cases, this is a fast operation.",
                 fileMap.get(":file1.sql").primaryLocation().message());
 
-        assertEquals(1, fileMap.size());
+        assertEquals("Adding a primary key to an existing big table could take a very long time, blocking reads / writes while the statement is running with an ACCESS EXCLUSIVE lock.",
+                     fileMap.get(":file3.sql").primaryLocation().message());
+
+        assertEquals(2, fileMap.size());
     }
 
     @Test

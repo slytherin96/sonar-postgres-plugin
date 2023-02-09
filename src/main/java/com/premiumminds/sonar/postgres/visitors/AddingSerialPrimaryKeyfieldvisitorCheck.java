@@ -1,11 +1,12 @@
 package com.premiumminds.sonar.postgres.visitors;
 
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
+import static com.premiumminds.sonar.postgres.protobuf.ConstrType.CONSTR_PRIMARY;
+
 import com.premiumminds.sonar.postgres.protobuf.ConstrType;
 import com.premiumminds.sonar.postgres.protobuf.Constraint;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
-
-import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD;
 
 @Rule(key = "adding-serial-primary-key-field")
 public class AddingSerialPrimaryKeyfieldvisitorCheck extends AbstractVisitorCheck {
@@ -18,6 +19,16 @@ public class AddingSerialPrimaryKeyfieldvisitorCheck extends AbstractVisitorChec
         }
 
         super.visitAlterTableTableConstraint(constraint);
+    }
+
+    @Override
+    public void visitAlterTableColumnConstraint(final Constraint constraint) {
+        final ConstrType contype = constraint.getContype();
+        if (CONSTR_PRIMARY.equals(contype)){
+            newIssue("Adding a primary key to an existing big table could take a very long time, blocking reads / writes while the statement is running with an ACCESS EXCLUSIVE lock.");
+        }
+
+        super.visitAlterTableColumnConstraint(constraint);
     }
 
     @Override
