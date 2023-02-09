@@ -19,15 +19,19 @@ import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStatsStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateTableAsStmt;
+import com.premiumminds.sonar.postgres.protobuf.DeleteStmt;
 import com.premiumminds.sonar.postgres.protobuf.DoStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
+import com.premiumminds.sonar.postgres.protobuf.InsertStmt;
 import com.premiumminds.sonar.postgres.protobuf.Node;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
+import com.premiumminds.sonar.postgres.protobuf.TruncateStmt;
+import com.premiumminds.sonar.postgres.protobuf.UpdateStmt;
 import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
 import com.premiumminds.sonar.postgres.protobuf.VariableSetStmt;
 import org.sonar.api.batch.fs.InputFile;
@@ -200,6 +204,26 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
     }
 
     @Override
+    public void visit(InsertStmt insertStmt){
+
+    }
+
+    @Override
+    public void visit(UpdateStmt updateStmt){
+
+    }
+
+    @Override
+    public void visit(DeleteStmt deleteStmt){
+
+    }
+
+    @Override
+    public void visit(final TruncateStmt truncateStmt) {
+
+    }
+
+    @Override
     public void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements){
         this.context = context;
         this.file = file;
@@ -253,6 +277,14 @@ public abstract class AbstractVisitorCheck implements VisitorCheck {
             visit(stmt.getVariableSetStmt());
         } else if (stmt.hasCreateFunctionStmt()){
             visit(stmt.getCreateFunctionStmt());
+        } else if (stmt.hasInsertStmt()){
+            visit(stmt.getInsertStmt());
+        } else if (stmt.hasUpdateStmt()){
+            visit(stmt.getUpdateStmt());
+        } else if (stmt.hasDeleteStmt()){
+            visit(stmt.getDeleteStmt());
+        } else if (stmt.hasTruncateStmt()){
+            visit(stmt.getTruncateStmt());
         }
     }
 

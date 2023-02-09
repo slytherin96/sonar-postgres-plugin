@@ -33,6 +33,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DI
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_DROP_CONSTRAINT_DROPS_INDEX;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_IDENTIFIER_MAX_LENGTH;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ONE_MIGRATION_PER_FILE;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_ONLY_SCHEMA_MIGRATIONS;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PARSE_ERROR;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_IDENTITY_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_PREFER_ROBUST_STMTS;
@@ -701,6 +702,33 @@ class PostgresSqlSensorTest {
                 fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    public void onlySchemaMigrations() {
+        createFile(contextTester, "file1.sql", "INSERT INTO foo VALUES(1,2);");
+        createFile(contextTester, "file2.sql", "UPDATE foo SET bar = 1;");
+        createFile(contextTester, "file3.sql", "DELETE FROM foo;");
+        createFile(contextTester, "file4.sql", "TRUNCATE foo;");
+
+        final RuleKey rule = RULE_ONLY_SCHEMA_MIGRATIONS;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("INSERT statements are now allowed",
+                     fileMap.get(":file1.sql").primaryLocation().message());
+        assertEquals("UPDATE statements are now allowed",
+                     fileMap.get(":file2.sql").primaryLocation().message());
+        assertEquals("DELETE statements are now allowed",
+                     fileMap.get(":file3.sql").primaryLocation().message());
+        assertEquals("TRUNCATE statements are now allowed",
+                     fileMap.get(":file4.sql").primaryLocation().message());
+
+        assertEquals(4, fileMap.size());
     }
 
     private PostgresSqlSensor getPostgresSqlSensor(RuleKey ruleKey) {
