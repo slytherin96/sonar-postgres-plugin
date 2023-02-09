@@ -16,6 +16,7 @@ import com.premiumminds.sonar.postgres.visitors.DisallowedDoVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DisallowedUniqueConstraintVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.DropConstraintDropsIndexVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.OneMigrationPerFileVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.OnlySchemaMigrationsVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.PreferIdentityVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.PreferTextFieldVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.RenameColumnVisitorCheck;
@@ -55,6 +56,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_PREFER_IDENTITY_FIELD = RuleKey.of(REPOSITORY, "prefer-identity-field");
     public static final RuleKey RULE_ONE_MIGRATION_PER_FILE = RuleKey.of(REPOSITORY, "one-migration-per-file");
     public static final RuleKey RULE_DISALLOWED_DO = RuleKey.of(REPOSITORY, "disallowed-do");
+    public static final RuleKey RULE_ONLY_SCHEMA_MIGRATIONS = RuleKey.of(REPOSITORY, "only-schema-migrations");
 
     @Override
     public void define(Context context) {
@@ -172,6 +174,11 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("disallowed-do.md"));
 
+        repository.createRule(RULE_ONLY_SCHEMA_MIGRATIONS.rule())
+                  .setName("only-schema-migrations rule")
+                  .setType(RuleType.BUG)
+                  .setMarkdownDescription(getClass().getResource("only-schema-migrations.md"));
+
         repository.done();
     }
 
@@ -196,6 +203,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new ClusterVisitorCheck(),
                 new PreferIdentityVisitorCheck(),
                 new DisallowedDoVisitorCheck(),
-                new OneMigrationPerFileVisitorCheck());
+                new OneMigrationPerFileVisitorCheck(),
+                new OnlySchemaMigrationsVisitorCheck());
     }
 }

@@ -1,7 +1,5 @@
 package com.premiumminds.sonar.postgres.visitors;
 
-import java.util.List;
-
 import com.premiumminds.sonar.postgres.PostgreSqlFile;
 import com.premiumminds.sonar.postgres.protobuf.AlterDomainStmt;
 import com.premiumminds.sonar.postgres.protobuf.AlterEnumStmt;
@@ -18,18 +16,21 @@ import com.premiumminds.sonar.postgres.protobuf.CreateSeqStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStatsStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateStmt;
 import com.premiumminds.sonar.postgres.protobuf.CreateTableAsStmt;
+import com.premiumminds.sonar.postgres.protobuf.DeleteStmt;
 import com.premiumminds.sonar.postgres.protobuf.DoStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropStmt;
 import com.premiumminds.sonar.postgres.protobuf.DropdbStmt;
 import com.premiumminds.sonar.postgres.protobuf.IndexStmt;
+import com.premiumminds.sonar.postgres.protobuf.InsertStmt;
 import com.premiumminds.sonar.postgres.protobuf.RawStmt;
 import com.premiumminds.sonar.postgres.protobuf.RefreshMatViewStmt;
 import com.premiumminds.sonar.postgres.protobuf.ReindexStmt;
 import com.premiumminds.sonar.postgres.protobuf.RenameStmt;
+import com.premiumminds.sonar.postgres.protobuf.TruncateStmt;
+import com.premiumminds.sonar.postgres.protobuf.UpdateStmt;
 import com.premiumminds.sonar.postgres.protobuf.VacuumStmt;
 import com.premiumminds.sonar.postgres.protobuf.VariableSetStmt;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
+import java.util.List;
 import org.sonar.api.batch.sensor.SensorContext;
 
 public interface VisitorCheck {
@@ -61,6 +62,10 @@ public interface VisitorCheck {
     void visit(ClusterStmt clusterStmt);
     void visit(VariableSetStmt variableSetStmt);
     void visit(CreateFunctionStmt createFunctionStmt);
+    void visit(InsertStmt insertStmt);
+    void visit(UpdateStmt updateStmt);
+    void visit(DeleteStmt deleteStmt);
+    void visit(TruncateStmt truncateStmt);
 
     void analyze(SensorContext context, PostgreSqlFile file, List<RawStmt> statements);
 
