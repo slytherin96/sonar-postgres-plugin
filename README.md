@@ -28,9 +28,10 @@ cp libpg_query.so src/main/resources/linux-x86-64/
 To cross-compile:
 ```shell
 # override compiler
-export CC=aarch64-linux-gnu-gcc
-make build_shared
-cp libpg_query.so src/main/resources/linux-armel/
+docker run --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp -e CC=aarch64-linux-gnu-gcc \
+  gcc:11 
+  apt update && apt install -y gcc-aarch64-linux-gnu && make build_shared
+cp libpg_query.so src/main/resources/linux-aarch64/
 ```
 
  - [libpg_query does not support Windows](https://github.com/pganalyze/libpg_query/issues/44)
