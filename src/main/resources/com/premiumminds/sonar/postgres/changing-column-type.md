@@ -27,3 +27,15 @@ See ["Postgres Tips: How to convert 2 Billion Rows to Bigint with Citus"](https:
 === convert an INT primary key to BIGINT
 
 It's a complicated, multi-step process to convert columns that are primary keys or columns that have foreign key relations.
+
+
+== further reading
+
+Check `castmethod` column for `b` for "binary coercible" types:
+```
+SELECT castsource::regtype, casttarget::regtype, castfunc::regproc, castcontext, castmethod
+FROM pg_catalog.pg_cast
+ORDER BY castsource::regtype::TEXT, casttarget::regtype::text;
+```
+
+ https://www.postgresql.org/docs/current/catalog-pg-cast.html
