@@ -3,6 +3,7 @@ package com.premiumminds.sonar.postgres;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,6 +46,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_SE
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_VACUUM_FULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 
 class PostgresSqlSensorTest {
@@ -74,6 +76,43 @@ class PostgresSqlSensorTest {
                 fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    public void testAllRules() {
+
+        createFile(contextTester, "file1.sql", "select 1;");
+
+        PostgresSqlSensor sensor = getPostgresSqlSensor(RULE_PARSE_ERROR,
+                RULE_PREFER_ROBUST_STMTS,
+                RULE_CONCURRENTLY,
+                RULE_ADD_FIELD_WITH_DEFAULT,
+                RULE_ADD_FOREIGN_KEY,
+                RULE_SETTING_NOT_NULLABLE_FIELD,
+                RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD,
+                RULE_BAN_CHAR_FIELD,
+                RULE_BAN_DROP_DATABASE,
+                RULE_CHANGING_COLUMN_TYPE,
+                RULE_CONSTRAINT_MISSING_NOT_VALID,
+                RULE_DISALLOWED_UNIQUE_CONSTRAINT,
+                RULE_PREFER_TEXT_FIELD,
+                RULE_RENAMING_COLUMN,
+                RULE_RENAMING_TABLE,
+                RULE_IDENTIFIER_MAX_LENGTH,
+                RULE_DROP_CONSTRAINT_DROPS_INDEX,
+                RULE_VACUUM_FULL,
+                RULE_CLUSTER,
+                RULE_PREFER_IDENTITY_FIELD,
+                RULE_ONE_MIGRATION_PER_FILE,
+                RULE_DISALLOWED_DO,
+                RULE_ONLY_SCHEMA_MIGRATIONS,
+                RULE_ONLY_LOWER_CASE_NAMES
+        );
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        assertTrue(issueMap.isEmpty());
     }
 
     @Test
@@ -801,13 +840,14 @@ class PostgresSqlSensorTest {
         assertEquals(4, fileMap.size());
     }
 
-    private PostgresSqlSensor getPostgresSqlSensor(RuleKey ruleKey) {
+    private PostgresSqlSensor getPostgresSqlSensor(RuleKey... ruleKey) {
         ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
 
-        activeRulesBuilder
-                .addRule(new NewActiveRule.Builder()
-                        .setRuleKey(ruleKey)
-                        .build());
+        Arrays.stream(ruleKey)
+                .forEach(ruleKey1 -> activeRulesBuilder
+                        .addRule(new NewActiveRule.Builder()
+                                .setRuleKey(ruleKey1)
+                                .build()));
 
         final DefaultActiveRules activeRules = activeRulesBuilder.build();
 
