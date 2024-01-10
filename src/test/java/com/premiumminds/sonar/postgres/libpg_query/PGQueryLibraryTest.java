@@ -92,7 +92,7 @@ class PGQueryLibraryTest {
     }
 
     @Test
-    public void pg_query_parse_plpgsql() {
+    void pg_query_parse_plpgsql() {
         final String query = "CREATE OR REPLACE FUNCTION cs_fmt_browser_version(v_name varchar, \n" +
                 "                                                  v_version varchar) \n" +
                 "RETURNS varchar AS $$\n" +

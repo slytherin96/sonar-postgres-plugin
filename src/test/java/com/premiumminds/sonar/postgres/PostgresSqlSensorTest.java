@@ -79,7 +79,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void testAllRules() {
+    void testAllRules() {
 
         createFile(contextTester, "file1.sql", "select 1;");
 
@@ -175,7 +175,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void preferRobustStmts() {
+    void preferRobustStmts() {
         createFile(contextTester, "file1.sql", "CREATE SEQUENCE foo START 101;");
         createFile(contextTester, "file2.sql", "ALTER SEQUENCE foo RESTART WITH 105;");
         createFile(contextTester, "file3.sql", "ALTER INDEX foo RENAME TO bar;");
@@ -313,7 +313,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void banDropDatabase() {
+    void banDropDatabase() {
         createFile(contextTester, "file1.sql", "DROP DATABASE foo;");
 
         final RuleKey rule = RULE_BAN_DROP_DATABASE;
@@ -331,7 +331,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void concurrently() {
+    void concurrently() {
         createFile(contextTester, "file1.sql", "DROP INDEX IF EXISTS idx1, idx2;");
         createFile(contextTester, "file2.sql", "create index if not exists idx1 on foo (id);");
         createFile(contextTester, "file3.sql", "reindex index idx1;");
@@ -367,7 +367,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void vacuum() {
+    void vacuum() {
         createFile(contextTester, "file1.sql", "VACUUM FULL foo, bar;");
 
         final RuleKey rule = RULE_VACUUM_FULL;
@@ -385,7 +385,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void cluster() {
+    void cluster() {
         createFile(contextTester, "file1.sql", "CLUSTER foo;");
 
         final RuleKey rule = RULE_CLUSTER;
@@ -403,7 +403,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void addingForeignKeyConstraint() {
+    void addingForeignKeyConstraint() {
 
         createFile(contextTester, "file1-ok.sql", "create table if not exists foo (id int, CONSTRAINT id_fk FOREIGN KEY (id) REFERENCES bar(id) );");
         createFile(contextTester, "file2-ok.sql", "create table if not exists foo (id int REFERENCES bar(id) );");
@@ -430,7 +430,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void banCharField() {
+    void banCharField() {
         createFile(contextTester, "file1.sql", "create table if not exists foo (id int, name char(100) NOT NULL);");
         createFile(contextTester, "file2.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name character;");
 
@@ -452,7 +452,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void preferTextField() {
+    void preferTextField() {
 
         createFile(contextTester, "file1.sql", "create table if not exists foo (id int, name varchar(100) NOT NULL);");
         createFile(contextTester, "file2.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS name varchar(100);");
@@ -477,7 +477,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void preferIdentityField() {
+    void preferIdentityField() {
 
         createFile(contextTester, "file1.sql", "create table if not exists foo (id serial, name text NOT NULL);");
         createFile(contextTester, "file2.sql", "ALTER TABLE foo ADD COLUMN id smallserial PRIMARY KEY;");
@@ -520,7 +520,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void addingFieldWithDefault() {
+    void addingFieldWithDefault() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ADD COLUMN IF NOT EXISTS bar integer DEFAULT random();");
         createFile(contextTester, "file2-ok.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT -1;");
         createFile(contextTester, "file3-ok.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN bar SET DEFAULT random();");
@@ -546,7 +546,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void settingNotNullableField() {
+    void settingNotNullableField() {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN id SET NOT NULL;");
 
@@ -565,7 +565,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void addingSerialPrimaryKeyField() {
+    void addingSerialPrimaryKeyField() {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ADD PRIMARY KEY (id);");
         createFile(contextTester, "file2-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_pk_idx ON foo (id); " +
@@ -592,7 +592,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void dropConstraintDropsIndex() {
+    void dropConstraintDropsIndex() {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo DROP CONSTRAINT bar_constraint;");
 
@@ -611,7 +611,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void changingColumnType() {
+    void changingColumnType() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ALTER COLUMN id TYPE bigint;");
 
         final RuleKey rule = RULE_CHANGING_COLUMN_TYPE;
@@ -629,7 +629,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void constraintMissingNotValid() {
+    void constraintMissingNotValid() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT positive_balance CHECK (balance >= 0);");
         createFile(contextTester, "file2-ok.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT positive_balance CHECK (balance >= 0) NOT VALID;" +
                                                                 "ALTER TABLE IF EXISTS foo VALIDATE CONSTRAINT positive_balance;");
@@ -649,7 +649,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void disallowedUniqueConstraint() {
+    void disallowedUniqueConstraint() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo ADD CONSTRAINT field_name_constraint UNIQUE (field_name);");
         createFile(contextTester, "file2-ok.sql", "CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS foo_name_temp_idx ON foo (name);" +
                                                                 "ALTER TABLE IF EXISTS foo " +
@@ -674,7 +674,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void renamingColumn() {
+    void renamingColumn() {
 
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo RENAME COLUMN bar TO baz;");
 
@@ -693,7 +693,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void renamingTable() {
+    void renamingTable() {
         createFile(contextTester, "file1.sql", "ALTER TABLE IF EXISTS foo RENAME TO bar;");
 
         final RuleKey rule = RULE_RENAMING_TABLE;
@@ -711,7 +711,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void oneMigrationPerFile() {
+    void oneMigrationPerFile() {
         createFile(contextTester, "file1.sql", "CREATE TABLE IF NOT EXISTS foo(id int);" +
                 "CREATE TABLE IF NOT EXISTS bar(id int);");
         createFile(contextTester, "file2.sql", "ALTER TABLE IF EXISTS foo DROP COLUMN baz;" +
@@ -764,7 +764,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void disallowedDo() {
+    void disallowedDo() {
         createFile(contextTester, "file1.sql", "DO\n" +
                 "$$\n" +
                 "  BEGIN\n" +
@@ -790,7 +790,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void onlySchemaMigrations() {
+    void onlySchemaMigrations() {
         createFile(contextTester, "file1.sql", "INSERT INTO foo VALUES(1,2);");
         createFile(contextTester, "file2.sql", "UPDATE foo SET bar = 1;");
         createFile(contextTester, "file3.sql", "DELETE FROM foo;");
@@ -817,7 +817,7 @@ class PostgresSqlSensorTest {
     }
 
     @Test
-    public void onlyLowerCaseNames() {
+    void onlyLowerCaseNames() {
         createFile(contextTester, "file1.sql", "CREATE TABLE Foo (id int);");
         createFile(contextTester, "file2.sql", "CREATE TABLE \"Foo\" (id int);");
         createFile(contextTester, "file3.sql", "CREATE TABLE foo (ID int);");
