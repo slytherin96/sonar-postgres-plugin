@@ -12,6 +12,13 @@
 
     <description>Plugin for SonarQube: Postgres SQL Language</description>
 
+    <scm>
+        <connection>scm:git:git@github.com:premium-minds/sonar-postgres-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:premium-minds/sonar-postgres-plugin.git</developerConnection>
+        <url>https://github.com/premium-minds/sonar-postgres-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <java.version>11</java.version>
     </properties>
