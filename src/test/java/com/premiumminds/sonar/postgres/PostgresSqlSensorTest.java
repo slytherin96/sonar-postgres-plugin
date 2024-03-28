@@ -241,6 +241,9 @@ class PostgresSqlSensorTest {
         createFile(contextTester, "file29.sql", "CREATE STATISTICS foo_stats(dependencies) ON id1, id2 FROM foo;");
         createFile(contextTester, "file30.sql", "DROP STATISTICS foo_stats, bar_stats;");
         createFile(contextTester, "file31.sql", "CREATE FUNCTION add(integer, integer) RETURNS integer AS 'select $1 + $2;' LANGUAGE SQL;");
+        createFile(contextTester, "file32.sql", "DROP FUNCTION foo, bar;");
+        createFile(contextTester, "file33.sql", "DROP PROCEDURE foo, bar;");
+        createFile(contextTester, "file34.sql", "CREATE PROCEDURE foo() LANGUAGE SQL AS $$ select 1;$$;");
 
         final RuleKey rule = RULE_PREFER_ROBUST_STMTS;
         PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
@@ -343,7 +346,16 @@ class PostgresSqlSensorTest {
         assertEquals("Add OR REPLACE to add",
                 fileMap.get(":file31.sql").primaryLocation().message());
 
-        assertEquals(31, fileMap.size());
+        assertEquals("Add IF EXISTS to DROP FUNCTION foo, bar",
+                fileMap.get(":file32.sql").primaryLocation().message());
+
+        assertEquals("Add IF EXISTS to DROP PROCEDURE foo, bar",
+                fileMap.get(":file33.sql").primaryLocation().message());
+
+        assertEquals("Add OR REPLACE to foo",
+                fileMap.get(":file34.sql").primaryLocation().message());
+
+        assertEquals(34, fileMap.size());
     }
 
     @Test
