@@ -53,6 +53,14 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                 .map(x -> x.getString().getSval())
                 .collect(Collectors.toList());
 
+        final List<String> functions = dropStmt.getObjectsList()
+                .stream()
+                .map(y -> y.getObjectWithArgs()
+                        .getObjnameList())
+                .flatMap(List::stream)
+                .map(x -> x.getString().getSval())
+                .collect(Collectors.toList());
+
         if(!dropStmt.getMissingOk()){
             final ObjectType removeType = dropStmt.getRemoveType();
             switch (removeType){
@@ -85,6 +93,12 @@ public class RobustStatementsVisitorCheck extends AbstractVisitorCheck {
                     break;
                 case OBJECT_STATISTIC_EXT:
                     newIssue("Add IF EXISTS to DROP STATISTICS " + String.join(", ", names));
+                    break;
+                case OBJECT_FUNCTION:
+                    newIssue("Add IF EXISTS to DROP FUNCTION " + String.join(", ", functions));
+                    break;
+                case OBJECT_PROCEDURE:
+                    newIssue("Add IF EXISTS to DROP PROCEDURE " + String.join(", ", functions));
                     break;
                 default:
                     newIssue("Add IF EXISTS");
