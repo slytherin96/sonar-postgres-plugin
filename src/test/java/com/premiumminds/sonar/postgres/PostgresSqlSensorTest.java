@@ -27,6 +27,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BA
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CREATE_DOMAIN_WITH_CONSTRAINT;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_DROP_DATABASE;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_TRUNCATE_CASCADE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CLUSTER;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONCURRENTLY;
@@ -97,6 +98,7 @@ class PostgresSqlSensorTest {
                 RULE_BAN_DROP_DATABASE,
                 RULE_BAN_CREATE_DOMAIN_WITH_CONSTRAINT,
                 RULE_BAN_ALTER_DOMAIN_WITH_CONSTRAINT,
+                RULE_BAN_TRUNCATE_CASCADE,
                 RULE_CHANGING_COLUMN_TYPE,
                 RULE_CONSTRAINT_MISSING_NOT_VALID,
                 RULE_DISALLOWED_UNIQUE_CONSTRAINT,
@@ -935,6 +937,25 @@ class PostgresSqlSensorTest {
 
         assertEquals("Domains with constraints have poor support for online migrations",
                      fileMap.get(":file9.sql").primaryLocation().message());
+
+        assertEquals(1, fileMap.size());
+    }
+
+    @Test
+    void banTruncateCascade() {
+        createFile(contextTester, "file1.sql", "TRUNCATE a, b, c CASCADE;\n");
+        createFile(contextTester, "file2-ok.sql", "TRUNCATE a, b, c;");
+
+        final RuleKey rule = RULE_BAN_TRUNCATE_CASCADE;
+        PostgresSqlSensor sensor = getPostgresSqlSensor(rule);
+        sensor.execute(contextTester);
+
+        final Map<RuleKey, Map<String, Issue>> issueMap = groupByRuleAndFile(contextTester.allIssues());
+
+        final Map<String, Issue> fileMap = issueMap.get(rule);
+
+        assertEquals("Truncate cascade will recursively truncate all related tables",
+                     fileMap.get(":file1.sql").primaryLocation().message());
 
         assertEquals(1, fileMap.size());
     }

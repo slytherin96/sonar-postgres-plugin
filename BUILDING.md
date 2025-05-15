@@ -47,7 +47,7 @@ docker run -d \
     -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
     -p 9000:9000 \
     -v $(pwd)/target/sonar-postgres-plugin-1.4-SNAPSHOT.jar:/opt/sonarqube/extensions/plugins/sonar-postgres-plugin-1.4-SNAPSHOT.jar \
-    sonarqube:lts-community
+    sonarqube:24.12.0.100206-community
 xdg-open http://localhost:9000/
 docker logs -f sonarqube
 ```
