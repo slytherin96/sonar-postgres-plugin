@@ -10,6 +10,7 @@ import com.premiumminds.sonar.postgres.visitors.BanAlterDomainWithConstraintChec
 import com.premiumminds.sonar.postgres.visitors.BanCharFieldVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.BanCreateDomainWithConstraintCheck;
 import com.premiumminds.sonar.postgres.visitors.BanDropDatabaseVisitorCheck;
+import com.premiumminds.sonar.postgres.visitors.BanTruncateCascade;
 import com.premiumminds.sonar.postgres.visitors.ChangingColumnTypeVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ClusterVisitorCheck;
 import com.premiumminds.sonar.postgres.visitors.ConcurrentVisitorCheck;
@@ -46,6 +47,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
     public static final RuleKey RULE_BAN_CHAR_FIELD = RuleKey.of(REPOSITORY, "ban-char-field");
     public static final RuleKey RULE_BAN_CREATE_DOMAIN_WITH_CONSTRAINT = RuleKey.of(REPOSITORY, "ban-create-domain-with-constraint");
     public static final RuleKey RULE_BAN_ALTER_DOMAIN_WITH_CONSTRAINT = RuleKey.of(REPOSITORY, "ban-alter-domain-with-add-constraint");
+    public static final RuleKey RULE_BAN_TRUNCATE_CASCADE = RuleKey.of(REPOSITORY, "ban-truncate-cascade");
     public static final RuleKey RULE_BAN_DROP_DATABASE = RuleKey.of(REPOSITORY, "ban-drop-database");
     public static final RuleKey RULE_CHANGING_COLUMN_TYPE = RuleKey.of(REPOSITORY, "changing-column-type");
     public static final RuleKey RULE_CONSTRAINT_MISSING_NOT_VALID = RuleKey.of(REPOSITORY, "constraint-missing-not-valid");
@@ -118,6 +120,11 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 .setName("ban-alter-domain-with-add-constraint")
                 .setType(RuleType.BUG)
                 .setMarkdownDescription(getClass().getResource("ban-alter-domain-with-add-constraint.md"));
+
+        repository.createRule(RULE_BAN_TRUNCATE_CASCADE.rule())
+                .setName("ban-truncate-cascade")
+                .setType(RuleType.BUG)
+                .setMarkdownDescription(getClass().getResource("ban-truncate-cascade.md"));
 
         repository.createRule(RULE_BAN_DROP_DATABASE.rule())
                 .setName("ban-drop-database rule")
@@ -220,6 +227,7 @@ public class PostgresSqlRulesDefinition implements RulesDefinition {
                 new BanCharFieldVisitorCheck(),
                 new BanCreateDomainWithConstraintCheck(),
                 new BanAlterDomainWithConstraintCheck(),
+                new BanTruncateCascade(),
                 new PreferTextFieldVisitorCheck(),
                 new VacuumFullVisitorCheck(),
                 new ClusterVisitorCheck(),

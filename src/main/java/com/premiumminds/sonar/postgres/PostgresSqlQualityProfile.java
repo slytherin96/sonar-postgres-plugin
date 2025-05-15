@@ -10,6 +10,7 @@ import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BA
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CHAR_FIELD;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_CREATE_DOMAIN_WITH_CONSTRAINT;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_DROP_DATABASE;
+import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_BAN_TRUNCATE_CASCADE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CHANGING_COLUMN_TYPE;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CLUSTER;
 import static com.premiumminds.sonar.postgres.PostgresSqlRulesDefinition.RULE_CONCURRENTLY;
@@ -45,6 +46,7 @@ public class PostgresSqlQualityProfile implements BuiltInQualityProfilesDefiniti
         activateRule(profile, RULE_ADDING_SERIAL_PRIMARY_KEY_FIELD);
         activateRule(profile, RULE_BAN_CHAR_FIELD);
         activateRule(profile, RULE_BAN_ALTER_DOMAIN_WITH_CONSTRAINT);
+        activateRule(profile, RULE_BAN_TRUNCATE_CASCADE);
         activateRule(profile, RULE_BAN_CREATE_DOMAIN_WITH_CONSTRAINT);
         activateRule(profile, RULE_BAN_DROP_DATABASE);
         activateRule(profile, RULE_CHANGING_COLUMN_TYPE);
