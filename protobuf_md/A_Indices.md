@@ -176,8 +176,11 @@ graph TD
     B -->|Срез массива| D["Проверка формата<br>ниж:верх"]
     B -->|Динамический индекс| E["Проверка выражения"]
     C --> F[[Отчет]]
+    D --> F
+    E --> F
     style A fill:#f9f,stroke:#333
     style B fill:#bbf,stroke:#333
+    style C,D,E fill:#fff,stroke:#666,stroke-width:2px
     style F fill:#9f9,stroke:#333
 ```
 ### Дополнительные возможности:
